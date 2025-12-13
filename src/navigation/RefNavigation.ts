@@ -1,0 +1,37 @@
+/**
+ * Navigation Service
+ * Allows navigation from non-component files
+ */
+
+import { createNavigationContainerRef, StackActions, CommonActions } from '@react-navigation/native';
+
+export const navigationRef = createNavigationContainerRef<any>();
+
+export function navigate(name: string, params?: any) {
+    if (navigationRef.isReady()) {
+        navigationRef.navigate(name, params);
+    }
+}
+
+export function push(name: string, params?: any) {
+    if (navigationRef.isReady()) {
+        navigationRef.dispatch(StackActions.push(name, params));
+    }
+}
+
+export function goBack() {
+    if (navigationRef.isReady() && navigationRef.canGoBack()) {
+        navigationRef.goBack();
+    }
+}
+
+export function reset(name: string, params?: any) {
+    if (navigationRef.isReady()) {
+        navigationRef.dispatch(
+            CommonActions.reset({
+                index: 0,
+                routes: [{ name, params }],
+            })
+        );
+    }
+}
