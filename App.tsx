@@ -1,45 +1,49 @@
-/**
- * Sample React Native App
- * https://github.com/facebook/react-native
- *
- * @format
- */
+import React from 'react';
+import { NavigationContainer } from '@react-navigation/native';
+import { Provider } from 'react-redux';
+import { PersistGate } from 'redux-persist/integration/react';
+import { store, persistor } from './src/store/store';
+import Toast from 'react-native-toast-message';
 
-import { NewAppScreen } from '@react-native/new-app-screen';
-import { StatusBar, StyleSheet, useColorScheme, View } from 'react-native';
-import {
-  SafeAreaProvider,
-  useSafeAreaInsets,
-} from 'react-native-safe-area-context';
+import RootNavigator from './src/navigation/RootNavigator';
+import { navigationRef } from './src/navigation/RefNavigation';
+import ErrorBoundary from './src/components/Common/ErrorBoundary';
+import { NetworkProvider } from './src/context/NetworkContext';
+import OfflineBanner from './src/components/Common/OfflineBanner';
 
-function App() {
-  const isDarkMode = useColorScheme() === 'dark';
-
-  return (
-    <SafeAreaProvider>
-      <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} />
-      <AppContent />
-    </SafeAreaProvider>
-  );
-}
-
-function AppContent() {
-  const safeAreaInsets = useSafeAreaInsets();
-
-  return (
-    <View style={styles.container}>
-      <NewAppScreen
-        templateFileName="App.tsx"
-        safeAreaInsets={safeAreaInsets}
-      />
-    </View>
-  );
-}
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
+const linking = {
+  prefixes: ['zomato://', 'https://zomato-clone.com'],
+  config: {
+    screens: {
+      Main: {
+        screens: {
+          Home: 'home',
+          Search: 'search',
+          Orders: 'orders',
+          Profile: 'profile',
+        },
+      },
+      RestaurantDetail: 'restaurant/:id',
+    },
   },
-});
+};
+
+function App(): React.JSX.Element {
+  return (
+    <Provider store={store}>
+      <PersistGate loading={null} persistor={persistor}>
+        <NetworkProvider>
+          <ErrorBoundary>
+            <NavigationContainer ref={navigationRef} linking={linking}>
+              <OfflineBanner />
+              <RootNavigator />
+              <Toast />
+            </NavigationContainer>
+          </ErrorBoundary>
+        </NetworkProvider>
+      </PersistGate>
+    </Provider>
+  );
+}
 
 export default App;
