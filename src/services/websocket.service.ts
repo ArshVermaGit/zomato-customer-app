@@ -1,4 +1,3 @@
-```typescript
 /**
  * WebSocket Service
  * Simulated WebSocket for real-time order tracking updates
@@ -72,7 +71,7 @@ export const WebSocketService = {
 
         connections.set(orderId, connection);
 
-        console.log(`[WS] Connected to order tracking: ${ orderId } `);
+        console.log(`[WS] Connected to order tracking: ${orderId} `);
 
         // Start simulating updates
         WebSocketService.startSimulation(orderId);
@@ -96,7 +95,7 @@ export const WebSocketService = {
             }
             connection.isConnected = false;
             connections.delete(orderId);
-            console.log(`[WS] Disconnected from order tracking: ${ orderId } `);
+            console.log(`[WS] Disconnected from order tracking: ${orderId} `);
         }
     },
 
@@ -154,7 +153,7 @@ export const WebSocketService = {
                     orderId,
                     payload: {
                         minutes: etaMinutes,
-                        distance: `${ (remainingPoints * 0.5).toFixed(1) } km`,
+                        distance: `${(remainingPoints * 0.5).toFixed(1)} km`,
                     },
                     timestamp: new Date().toISOString(),
                 });
