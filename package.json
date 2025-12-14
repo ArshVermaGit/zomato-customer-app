@@ -4,12 +4,16 @@
   "private": true,
   "scripts": {
     "android": "react-native run-android",
+    "dev": "expo start --web",
     "ios": "react-native run-ios",
     "lint": "eslint .",
     "start": "react-native start",
     "test": "jest"
   },
   "dependencies": {
+    "@babel/plugin-transform-export-namespace-from": "^7.27.1",
+    "@expo/metro-config": "^54.0.11",
+    "@expo/metro-runtime": "^6.1.2",
     "@hookform/resolvers": "^5.2.2",
     "@notifee/react-native": "^9.1.8",
     "@react-native-async-storage/async-storage": "^2.2.0",
@@ -24,11 +28,13 @@
     "@tanstack/react-query": "^5.90.12",
     "@types/lodash.debounce": "^4.0.9",
     "axios": "^1.13.2",
+    "expo": "^54.0.29",
     "lodash.debounce": "^4.0.8",
     "lottie-react-native": "^7.3.4",
     "lucide-react-native": "^0.561.0",
     "moti": "^0.30.0",
     "react": "19.2.0",
+    "react-dom": "^19.2.3",
     "react-hook-form": "^7.68.0",
     "react-native": "0.83.0",
     "react-native-fast-image": "^8.6.3",
@@ -43,6 +49,7 @@
     "react-native-svg": "^15.15.1",
     "react-native-tab-view": "^4.2.0",
     "react-native-toast-message": "^2.3.3",
+    "react-native-web": "^0.21.2",
     "react-redux": "^9.2.0",
     "redux-persist": "^6.0.0",
     "zod": "^4.1.13"
