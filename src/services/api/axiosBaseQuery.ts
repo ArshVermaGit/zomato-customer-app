@@ -3,8 +3,15 @@ import axios, { AxiosRequestConfig, AxiosError } from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 // Base URL for API
-// In a real app, this would come from an environment variable (Config.API_URL)
-const BASE_URL = 'http://localhost:3000/api';
+import { Platform } from 'react-native';
+
+// Base URL for API
+// 10.0.2.2 is the localhost alias for Android Emulator
+const BASE_URL = Platform.select({
+    android: 'http://10.0.2.2:3000/api',
+    ios: 'http://localhost:3000/api',
+    default: 'http://localhost:3000/api',
+});
 
 const axiosInstance = axios.create({
     baseURL: BASE_URL,
