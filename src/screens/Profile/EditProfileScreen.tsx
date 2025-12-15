@@ -12,6 +12,7 @@ import { Camera, ChevronLeft } from 'lucide-react-native';
 
 import { RootState, AppDispatch } from '../../store/store';
 import { updateProfile } from '../../store/slices/authSlice';
+import { colors, spacing, typography, borderRadius } from '@zomato/design-tokens';
 
 const EditProfileScreen = () => {
     const navigation = useNavigation();
@@ -41,7 +42,7 @@ const EditProfileScreen = () => {
         <SafeAreaView style={styles.container} edges={['top']}>
             <View style={styles.header}>
                 <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
-                    <ChevronLeft size={24} color="#333" />
+                    <ChevronLeft size={24} color={colors.secondary.black} />
                 </TouchableOpacity>
                 <Text style={styles.headerTitle}>Edit Profile</Text>
                 <TouchableOpacity onPress={handleSave} disabled={isLoading}>
@@ -61,7 +62,7 @@ const EditProfileScreen = () => {
                             style={styles.avatar}
                         />
                         <TouchableOpacity style={styles.cameraButton}>
-                            <Camera size={20} color="#fff" />
+                            <Camera size={20} color={colors.secondary.white} />
                         </TouchableOpacity>
                     </View>
 
@@ -103,85 +104,84 @@ const EditProfileScreen = () => {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#fff',
+        backgroundColor: colors.secondary.white,
     },
     header: {
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
-        padding: 16,
+        padding: spacing.base,
         borderBottomWidth: 1,
-        borderBottomColor: '#F0F0F0',
+        borderBottomColor: colors.secondary.gray_100,
     },
     backButton: {
-        padding: 4,
+        padding: spacing.xs,
     },
     headerTitle: {
-        fontSize: 18,
-        fontWeight: '600',
-        color: '#333',
+        ...typography.h3,
+        color: colors.secondary.gray_900,
     },
     saveText: {
+        ...typography.wrapper_small, // Fallback if button_medium doesn't exist
         fontSize: 16,
         fontWeight: '600',
-        color: '#E23744',
+        color: colors.primary.zomato_red,
     },
     content: {
-        padding: 24,
+        padding: spacing.xl,
     },
     avatarContainer: {
         alignSelf: 'center',
-        marginBottom: 32,
+        marginBottom: spacing.xl,
         position: 'relative',
     },
     avatar: {
         width: 100,
         height: 100,
         borderRadius: 50,
-        backgroundColor: '#F5F5F5',
+        backgroundColor: colors.secondary.gray_100,
     },
     cameraButton: {
         position: 'absolute',
         bottom: 0,
         right: 0,
-        backgroundColor: '#E23744',
+        backgroundColor: colors.primary.zomato_red,
         width: 36,
         height: 36,
         borderRadius: 18,
         justifyContent: 'center',
         alignItems: 'center',
         borderWidth: 3,
-        borderColor: '#fff',
+        borderColor: colors.secondary.white,
     },
     formGroup: {
-        marginBottom: 24,
+        marginBottom: spacing.xl,
     },
     label: {
-        fontSize: 14,
-        color: '#666',
-        marginBottom: 8,
-        fontWeight: '500',
+        ...typography.label_medium,
+        color: colors.secondary.gray_600,
+        marginBottom: spacing.sm,
     },
     input: {
         borderWidth: 1,
-        borderColor: '#E0E0E0',
-        borderRadius: 8,
-        padding: 12,
+        borderColor: colors.secondary.gray_200,
+        borderRadius: borderRadius.lg,
+        padding: spacing.md,
         fontSize: 16,
-        color: '#333',
-        backgroundColor: '#fff',
+        color: colors.secondary.gray_900,
+        backgroundColor: colors.secondary.white,
     },
     disabledInput: {
-        backgroundColor: '#F9F9F9',
-        borderColor: '#F0F0F0',
+        backgroundColor: colors.secondary.gray_50,
+        borderColor: colors.secondary.gray_100,
     },
     disabledText: {
-        color: '#999',
+        color: colors.secondary.gray_400,
     },
     helperText: {
-        fontSize: 12,
-        color: '#999',
-        marginTop: 6,
+        ...typography.caption,
+        color: colors.secondary.gray_500,
+        marginTop: spacing.xs,
     },
 });
 
