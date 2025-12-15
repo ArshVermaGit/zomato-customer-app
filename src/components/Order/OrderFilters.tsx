@@ -8,6 +8,7 @@ import { View, StyleSheet, Text, TouchableOpacity, ScrollView } from 'react-nati
 import { OrderStatus } from '../../types/order.types';
 import { DateRangeFilter } from '../../types/history.types';
 import { Filter, Calendar } from 'lucide-react-native';
+import { colors, spacing, typography, borderRadius } from '@zomato/design-tokens';
 
 interface OrderFiltersProps {
     activeStatus: OrderStatus | 'all';
@@ -31,7 +32,7 @@ const OrderFilters: React.FC<OrderFiltersProps> = ({
             >
                 {/* Filter Icon (Visual only) */}
                 <View style={styles.iconContainer}>
-                    <Filter size={16} color="#666" />
+                    <Filter size={16} color={colors.secondary.gray_600} />
                 </View>
 
                 {/* Status Filters */}
@@ -58,7 +59,7 @@ const OrderFilters: React.FC<OrderFiltersProps> = ({
                     label="Last 30 Days"
                     isActive={activeDateRange === DateRangeFilter.LAST_30_DAYS}
                     onPress={() => onDateRangeChange(DateRangeFilter.LAST_30_DAYS)}
-                    icon={<Calendar size={12} color={activeDateRange === DateRangeFilter.LAST_30_DAYS ? '#fff' : '#666'} />}
+                    icon={<Calendar size={12} color={activeDateRange === DateRangeFilter.LAST_30_DAYS ? colors.secondary.white : colors.secondary.gray_600} />}
                 />
                 <FilterChip
                     label="All Time"
@@ -85,49 +86,49 @@ const FilterChip = ({ label, isActive, onPress, icon }: { label: string; isActiv
 
 const styles = StyleSheet.create({
     container: {
-        paddingVertical: 12,
-        backgroundColor: '#fff',
+        paddingVertical: spacing.md,
+        backgroundColor: colors.secondary.white,
         borderBottomWidth: 1,
-        borderBottomColor: '#F0F0F0',
+        borderBottomColor: colors.secondary.gray_100,
     },
     scrollContent: {
-        paddingHorizontal: 16,
+        paddingHorizontal: spacing.lg,
         alignItems: 'center',
     },
     iconContainer: {
-        marginRight: 10,
+        marginRight: spacing.sm,
         padding: 6,
-        backgroundColor: '#F5F5F5',
-        borderRadius: 8,
+        backgroundColor: colors.secondary.gray_100,
+        borderRadius: borderRadius.md,
     },
     chip: {
         paddingHorizontal: 14,
         paddingVertical: 8,
-        borderRadius: 20,
-        backgroundColor: '#fff',
+        borderRadius: borderRadius.full,
+        backgroundColor: colors.secondary.white,
         borderWidth: 1,
-        borderColor: '#E0E0E0',
-        marginRight: 8,
+        borderColor: colors.secondary.gray_200,
+        marginRight: spacing.sm,
         flexDirection: 'row',
         alignItems: 'center',
     },
     activeChip: {
-        backgroundColor: '#333',
-        borderColor: '#333',
+        backgroundColor: colors.secondary.gray_900,
+        borderColor: colors.secondary.gray_900,
     },
     chipText: {
-        fontSize: 13,
-        color: '#666',
+        ...typography.body_small,
+        color: colors.secondary.gray_600,
         fontWeight: '500',
     },
     activeChipText: {
-        color: '#fff',
+        color: colors.secondary.white,
     },
     divider: {
         width: 1,
         height: 20,
-        backgroundColor: '#E0E0E0',
-        marginHorizontal: 8,
+        backgroundColor: colors.secondary.gray_200,
+        marginHorizontal: spacing.sm,
     },
 });
 
