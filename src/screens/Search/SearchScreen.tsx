@@ -1,19 +1,19 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, FlatList, TouchableOpacity, ScrollView } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Animated } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import { Clock, TrendingUp, Search as SearchIcon } from 'lucide-react-native';
+import { Clock, TrendingUp, Search as SearchIcon, ArrowUpLeft } from 'lucide-react-native';
 import SearchBar from '../../components/Search/SearchBar';
-import VoiceSearchModal from '../../components/Search/VoiceSearchModal';
 import { useSearch } from '../../hooks/useSearch';
+import { colors, spacing, typography, borderRadius } from '@zomato/design-tokens';
+import { EmptyState } from '@zomato/ui';
 
 const SearchScreen = () => {
     const navigation = useNavigation<any>();
     const [searchText, setSearchText] = useState('');
-    const [isVoiceModalVisible, setIsVoiceModalVisible] = useState(false);
     const {
         recentSearches,
         trendingSearches,
-        suggestions,
+        suggestions, // Simulated suggestions
         addRecentSearch,
         clearRecentSearches,
         fetchSuggestions
@@ -25,72 +25,93 @@ const SearchScreen = () => {
     };
 
     const handleSubmit = (query: string) => {
+        if (!query.trim()) return;
         addRecentSearch(query);
         navigation.navigate('SearchResults', { query });
     };
 
     return (
         <View style={styles.container}>
-            <SearchBar
-                value={searchText}
-                onSearchChange={handleSearch}
-                onVoicePress={() => setIsVoiceModalVisible(true)}
-                autoFocus
-            />
+            <View style={styles.header}>
+                <SearchBar
+                    value={searchText}
+                    onSearchChange={handleSearch}
+                    autoFocus
+                    onPress={() => navigation.goBack()} // Fallback if needed
+                    placeholder="Restaurant name, cuisine, or a dish..."
+                />
+            </View>
 
-            <ScrollView keyboardShouldPersistTaps="handled" contentContainerStyle={styles.content}>
+            <ScrollView
+                keyboardShouldPersistTaps="handled"
+                contentContainerStyle={styles.content}
+                showsVerticalScrollIndicator={false}
+            >
 
                 {/* Suggestions List */}
                 {searchText.length > 0 && (
                     <View style={styles.section}>
-                        {suggestions.map((item, index) => (
-                            <TouchableOpacity key={index} style={styles.suggestionItem} onPress={() => handleSubmit(item)}>
-                                <SearchIcon color="#999" size={18} />
-                                <Text style={styles.suggestionText}>{item}</Text>
-                            </TouchableOpacity>
-                        ))}
-                    </View>
-                )}
-
-                {/* Recent Searches */}
-                {searchText.length === 0 && recentSearches.length > 0 && (
-                    <View style={styles.section}>
-                        <View style={styles.sectionHeader}>
-                            <Text style={styles.sectionTitle}>Recent Searches</Text>
-                            <TouchableOpacity onPress={clearRecentSearches}>
-                                <Text style={styles.clearText}>Clear</Text>
-                            </TouchableOpacity>
-                        </View>
-                        {recentSearches.map((item, index) => (
-                            <TouchableOpacity key={index} style={styles.recentItem} onPress={() => handleSubmit(item)}>
-                                <Clock color="#999" size={18} />
-                                <Text style={styles.recentText}>{item}</Text>
-                            </TouchableOpacity>
-                        ))}
-                    </View>
-                )}
-
-                {/* Trending Searches */}
-                {searchText.length === 0 && (
-                    <View style={styles.section}>
-                        <Text style={styles.sectionTitle}>Trending Searches</Text>
-                        <View style={styles.trendingContainer}>
-                            {trendingSearches.map((item, index) => (
-                                <TouchableOpacity key={index} style={styles.trendingChip} onPress={() => handleSubmit(item)}>
-                                    <TrendingUp color="#E23744" size={16} style={{ marginRight: 5 }} />
-                                    <Text style={styles.trendingText}>{item}</Text>
+                        {suggestions.length > 0 ? (
+                            suggestions.map((item, index) => (
+                                <TouchableOpacity key={index} style={styles.suggestionItem} onPress={() => handleSubmit(item)}>
+                                    <View style={styles.iconBox}>
+                                        <SearchIcon color={colors.secondary.gray_600} size={18} />
+                                    </View>
+                                    <View style={styles.suggestionTextContainer}>
+                                        <Text style={styles.suggestionText}>{item}</Text>
+                                        <Text style={styles.suggestionType}>Dish</Text>
+                                    </View>
+                                    <ArrowUpLeft size={18} color={colors.secondary.gray_400} style={{ transform: [{ rotate: '45deg' }] }} />
                                 </TouchableOpacity>
-                            ))}
-                        </View>
+                            ))
+                        ) : (
+                            // Live Empty State if no suggestions match
+                            <EmptyState
+                                title="No matching results"
+                                description="Try a different keyword"
+                                variant="search"
+                                style={{ marginTop: 20 }}
+                            />
+                        )}
                     </View>
+                )}
+
+                {/* Default State: Recent & Trending */}
+                {searchText.length === 0 && (
+                    <>
+                        {/* Recent Searches */}
+                        {recentSearches.length > 0 && (
+                            <View style={styles.section}>
+                                <View style={styles.sectionHeader}>
+                                    <Text style={styles.sectionTitle}>Recent Searches</Text>
+                                    <TouchableOpacity onPress={clearRecentSearches}>
+                                        <Text style={styles.clearText}>Clear All</Text>
+                                    </TouchableOpacity>
+                                </View>
+                                {recentSearches.map((item, index) => (
+                                    <TouchableOpacity key={index} style={styles.recentItem} onPress={() => handleSubmit(item)}>
+                                        <Clock color={colors.secondary.gray_500} size={18} />
+                                        <Text style={styles.recentText}>{item}</Text>
+                                    </TouchableOpacity>
+                                ))}
+                            </View>
+                        )}
+
+                        {/* Trending Searches */}
+                        <View style={styles.section}>
+                            <Text style={styles.sectionTitle}>Trending Near You</Text>
+                            <View style={styles.trendingContainer}>
+                                {trendingSearches.map((item, index) => (
+                                    <TouchableOpacity key={index} style={styles.trendingChip} onPress={() => handleSubmit(item)}>
+                                        <TrendingUp color={colors.primary.zomato_red} size={16} />
+                                        <Text style={styles.trendingText}>{item}</Text>
+                                    </TouchableOpacity>
+                                ))}
+                            </View>
+                        </View>
+                    </>
                 )}
             </ScrollView>
-
-            <VoiceSearchModal
-                visible={isVoiceModalVisible}
-                onClose={() => setIsVoiceModalVisible(false)}
-                onResult={handleSubmit}
-            />
         </View>
     );
 };
@@ -98,72 +119,104 @@ const SearchScreen = () => {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#fff',
+        backgroundColor: colors.secondary.white,
+    },
+    header: {
+        paddingHorizontal: spacing.md,
+        paddingTop: 50, // Safe Area approx
+        paddingBottom: spacing.xs,
+        backgroundColor: colors.secondary.white,
+        borderBottomWidth: 1,
+        borderBottomColor: colors.secondary.gray_100,
     },
     content: {
-        padding: 20,
+        padding: spacing.md,
     },
     section: {
-        marginBottom: 30,
+        marginBottom: spacing.xl,
     },
     sectionHeader: {
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
-        marginBottom: 15,
+        marginBottom: spacing.md,
     },
     sectionTitle: {
-        fontSize: 16,
-        fontWeight: 'bold',
-        color: '#333',
-        marginBottom: 10,
+        ...typography.h4,
+        color: colors.secondary.gray_900,
+        letterSpacing: 0.5,
     },
     clearText: {
-        color: '#E23744',
-        fontSize: 14,
+        ...typography.caption,
+        color: colors.primary.zomato_red,
         fontWeight: '600',
     },
     recentItem: {
         flexDirection: 'row',
         alignItems: 'center',
-        paddingVertical: 12,
+        paddingVertical: spacing.md,
         borderBottomWidth: 1,
-        borderBottomColor: '#f0f0f0',
+        borderBottomColor: colors.secondary.gray_50,
+        gap: spacing.md,
     },
     recentText: {
-        marginLeft: 15,
-        fontSize: 16,
-        color: '#333',
+        ...typography.body_large,
+        color: colors.secondary.gray_800,
     },
     trendingContainer: {
         flexDirection: 'row',
         flexWrap: 'wrap',
+        marginTop: spacing.sm,
+        gap: spacing.sm,
     },
     trendingChip: {
         flexDirection: 'row',
         alignItems: 'center',
-        backgroundColor: '#fff',
+        backgroundColor: colors.secondary.white,
         borderWidth: 1,
-        borderColor: '#e0e0e0',
-        borderRadius: 20,
-        paddingHorizontal: 15,
+        borderColor: colors.secondary.gray_200,
+        borderRadius: borderRadius.full,
+        paddingHorizontal: spacing.md,
         paddingVertical: 8,
-        marginRight: 10,
-        marginBottom: 10,
+        gap: 6,
+        // Chip shadow
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 1 },
+        shadowOpacity: 0.05,
+        shadowRadius: 2,
+        elevation: 1,
     },
     trendingText: {
-        color: '#E23744',
-        fontWeight: '600',
+        ...typography.body_medium,
+        color: colors.secondary.gray_800,
+        fontWeight: '500',
     },
     suggestionItem: {
         flexDirection: 'row',
         alignItems: 'center',
-        paddingVertical: 12,
+        paddingVertical: spacing.md,
+        borderBottomWidth: 1,
+        borderBottomColor: colors.secondary.gray_100,
+    },
+    iconBox: {
+        width: 36,
+        height: 36,
+        borderRadius: 18,
+        backgroundColor: colors.secondary.gray_100,
+        alignItems: 'center',
+        justifyContent: 'center',
+        marginRight: spacing.md,
+    },
+    suggestionTextContainer: {
+        flex: 1,
     },
     suggestionText: {
-        marginLeft: 15,
-        fontSize: 16,
-        color: '#333',
+        ...typography.body_large,
+        color: colors.secondary.gray_900,
+    },
+    suggestionType: {
+        ...typography.caption,
+        color: colors.secondary.gray_500,
     },
 });
 
