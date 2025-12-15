@@ -6,7 +6,7 @@
 import notifee, { AndroidImportance, EventType } from '@notifee/react-native';
 import { NotificationItem, NotificationType } from '../types/notification.types';
 
-const mockDelay = (ms: number = 500) => new Promise(resolve => setTimeout(resolve, ms));
+const mockDelay = (ms: number = 500) => new Promise(resolve => setTimeout(() => resolve(true), ms));
 
 // Mock Data
 let MOCK_NOTIFICATIONS: NotificationItem[] = [
