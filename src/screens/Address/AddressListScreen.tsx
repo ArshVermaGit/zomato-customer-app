@@ -24,6 +24,7 @@ import type { RootState, AppDispatch } from '../../store/store';
 import type { Address, AddressStackParamList } from '../../types/address.types';
 import { fetchAddresses, deleteAddress, setSelectedAddress } from '../../store/slices/addressSlice';
 import { AddressCard, DeleteConfirmationModal } from '../../components/Address';
+import { colors, spacing, typography, borderRadius, shadows } from '@zomato/design-tokens';
 
 type NavigationProp = StackNavigationProp<AddressStackParamList, 'AddressList'>;
 type RouteProps = RouteProp<AddressStackParamList, 'AddressList'>;
@@ -130,7 +131,7 @@ const AddressListScreen = () => {
                         onPress={() => navigation.goBack()}
                         style={styles.backButton}
                     >
-                        <ArrowLeft size={24} color="#333" />
+                        <ArrowLeft size={24} color={colors.secondary.gray_900} />
                     </TouchableOpacity>
                     <Text style={styles.headerTitle}>
                         {selectMode ? 'Select Delivery Address' : 'Saved Addresses'}
@@ -138,7 +139,7 @@ const AddressListScreen = () => {
                     <View style={styles.headerRight} />
                 </View>
                 <View style={styles.loadingContainer}>
-                    <ActivityIndicator size="large" color="#E23744" />
+                    <ActivityIndicator size="large" color={colors.primary.zomato_red} />
                 </View>
             </SafeAreaView>
         );
@@ -151,7 +152,7 @@ const AddressListScreen = () => {
                     onPress={() => navigation.goBack()}
                     style={styles.backButton}
                 >
-                    <ArrowLeft size={24} color="#333" />
+                    <ArrowLeft size={24} color={colors.secondary.gray_900} />
                 </TouchableOpacity>
                 <Text style={styles.headerTitle}>
                     {selectMode ? 'Select Delivery Address' : 'Saved Addresses'}
@@ -178,8 +179,8 @@ const AddressListScreen = () => {
                     <RefreshControl
                         refreshing={refreshing}
                         onRefresh={onRefresh}
-                        colors={['#E23744']}
-                        tintColor="#E23744"
+                        colors={[colors.primary.zomato_red]}
+                        tintColor={colors.primary.zomato_red}
                     />
                 }
                 showsVerticalScrollIndicator={false}
@@ -191,7 +192,7 @@ const AddressListScreen = () => {
                         style={styles.addNewButton}
                         onPress={handleAddAddress}
                     >
-                        <Plus size={20} color="#E23744" />
+                        <Plus size={20} color={colors.primary.zomato_red} />
                         <Text style={styles.addNewButtonText}>Add New Address</Text>
                     </TouchableOpacity>
                 </View>
@@ -212,28 +213,24 @@ const AddressListScreen = () => {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#F5F6F8',
+        backgroundColor: '#F5F6F8', // Standard List BG
     },
     header: {
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'space-between',
-        paddingHorizontal: 16,
-        paddingVertical: 12,
-        backgroundColor: '#fff',
-        elevation: 2,
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 1 },
-        shadowOpacity: 0.1,
-        shadowRadius: 2,
+        paddingHorizontal: spacing.md,
+        paddingVertical: spacing.md,
+        backgroundColor: colors.secondary.white,
+        borderBottomWidth: 1,
+        borderBottomColor: colors.secondary.gray_100,
     },
     backButton: {
         padding: 4,
     },
     headerTitle: {
-        fontSize: 18,
-        fontWeight: '600',
-        color: '#333',
+        ...typography.h4,
+        color: colors.secondary.gray_900,
     },
     headerRight: {
         width: 32,
@@ -245,18 +242,19 @@ const styles = StyleSheet.create({
     },
     errorBanner: {
         backgroundColor: '#FFEBEE',
-        padding: 12,
-        marginHorizontal: 16,
-        marginTop: 12,
-        borderRadius: 8,
+        padding: spacing.md,
+        marginHorizontal: spacing.md,
+        marginTop: spacing.md,
+        borderRadius: borderRadius.md,
     },
     errorText: {
-        color: '#E23744',
+        color: colors.primary.zomato_red,
         fontSize: 14,
         textAlign: 'center',
     },
     listContent: {
-        padding: 16,
+        padding: spacing.md,
+        paddingBottom: 100,
     },
     emptyListContent: {
         flex: 1,
@@ -270,60 +268,58 @@ const styles = StyleSheet.create({
     emptyImage: {
         width: 180,
         height: 180,
-        marginBottom: 24,
+        marginBottom: spacing.lg,
     },
     emptyTitle: {
-        fontSize: 20,
-        fontWeight: '700',
-        color: '#333',
-        marginBottom: 8,
+        ...typography.h3,
+        color: colors.secondary.gray_900,
+        marginBottom: spacing.sm,
         textAlign: 'center',
     },
     emptySubtitle: {
-        fontSize: 14,
-        color: '#666',
+        ...typography.body_medium,
+        color: colors.secondary.gray_600,
         textAlign: 'center',
-        lineHeight: 20,
-        marginBottom: 24,
+        marginBottom: spacing.xl,
     },
     addButton: {
         flexDirection: 'row',
         alignItems: 'center',
-        backgroundColor: '#E23744',
-        paddingHorizontal: 24,
-        paddingVertical: 14,
-        borderRadius: 10,
+        backgroundColor: colors.primary.zomato_red,
+        paddingHorizontal: spacing.lg,
+        paddingVertical: spacing.md,
+        borderRadius: borderRadius.lg,
+        ...shadows.md,
     },
     addButtonText: {
-        fontSize: 16,
-        fontWeight: '600',
-        color: '#fff',
-        marginLeft: 8,
+        ...typography.button_medium,
+        color: colors.secondary.white,
+        marginLeft: spacing.sm,
     },
     footer: {
-        backgroundColor: '#fff',
-        padding: 16,
-        elevation: 8,
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: -2 },
-        shadowOpacity: 0.1,
-        shadowRadius: 4,
+        position: 'absolute',
+        bottom: 0,
+        left: 0,
+        right: 0,
+        backgroundColor: colors.secondary.white,
+        padding: spacing.md,
+        borderTopWidth: 1,
+        borderTopColor: colors.secondary.gray_100,
     },
     addNewButton: {
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'center',
-        backgroundColor: '#fff',
+        backgroundColor: colors.secondary.white,
         borderWidth: 1,
-        borderColor: '#E23744',
-        paddingVertical: 14,
-        borderRadius: 10,
+        borderColor: colors.primary.zomato_red,
+        paddingVertical: spacing.md,
+        borderRadius: borderRadius.lg,
     },
     addNewButtonText: {
-        fontSize: 16,
-        fontWeight: '600',
-        color: '#E23744',
-        marginLeft: 8,
+        ...typography.button_medium,
+        color: colors.primary.zomato_red,
+        marginLeft: spacing.sm,
     },
 });
 
