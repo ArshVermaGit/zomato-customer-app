@@ -6,7 +6,8 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { ShoppingBag, Tag, Info, Truck } from 'lucide-react-native';
-import { NotificationItem, NotificationType } from '../../types/notification.types';
+import { colors, spacing, typography, borderRadius } from '@zomato/design-tokens';
+import { NotificationItem } from '../../types/notification.types';
 
 interface NotificationCardProps {
     notification: NotificationItem;
@@ -17,28 +18,28 @@ const NotificationCard: React.FC<NotificationCardProps> = ({ notification, onPre
     const getIcon = () => {
         switch (notification.type) {
             case 'ORDER_UPDATE':
-                return <ShoppingBag size={20} color="#fff" />;
+                return <ShoppingBag size={20} color={colors.secondary.white} />;
             case 'OFFER':
-                return <Tag size={20} color="#fff" />;
+                return <Tag size={20} color={colors.secondary.white} />;
             case 'DELIVERY':
-                return <Truck size={20} color="#fff" />;
+                return <Truck size={20} color={colors.secondary.white} />;
             case 'SYSTEM':
             default:
-                return <Info size={20} color="#fff" />;
+                return <Info size={20} color={colors.secondary.white} />;
         }
     };
 
     const getIconColor = () => {
         switch (notification.type) {
             case 'ORDER_UPDATE':
-                return '#2196F3'; // Blue
+                return '#2196F3';
             case 'OFFER':
-                return '#FF9800'; // Orange
+                return colors.semantic.warning;
             case 'DELIVERY':
-                return '#4CAF50'; // Green
+                return colors.semantic.success;
             case 'SYSTEM':
             default:
-                return '#9E9E9E'; // Grey
+                return colors.secondary.gray_500;
         }
     };
 
@@ -82,21 +83,21 @@ const NotificationCard: React.FC<NotificationCardProps> = ({ notification, onPre
 const styles = StyleSheet.create({
     container: {
         flexDirection: 'row',
-        padding: 16,
-        backgroundColor: '#fff',
+        padding: spacing.base,
+        backgroundColor: colors.secondary.white,
         borderBottomWidth: 1,
-        borderBottomColor: '#F0F0F0',
+        borderBottomColor: colors.secondary.gray_100,
     },
     unreadContainer: {
-        backgroundColor: '#FFF8F9', // Slight tint for unread
+        backgroundColor: colors.primary.zomato_red_light || '#FFF8F9',
     },
     iconContainer: {
         width: 40,
         height: 40,
-        borderRadius: 20,
+        borderRadius: borderRadius.full,
         justifyContent: 'center',
         alignItems: 'center',
-        marginRight: 12,
+        marginRight: spacing.sm,
     },
     content: {
         flex: 1,
@@ -108,9 +109,8 @@ const styles = StyleSheet.create({
         marginBottom: 4,
     },
     title: {
-        fontSize: 15,
-        fontWeight: '600',
-        color: '#333',
+        ...typography.body_large,
+        color: colors.secondary.gray_900,
         flex: 1,
     },
     unreadText: {
@@ -120,18 +120,18 @@ const styles = StyleSheet.create({
         width: 8,
         height: 8,
         borderRadius: 4,
-        backgroundColor: '#E23744',
-        marginLeft: 8,
+        backgroundColor: colors.primary.zomato_red,
+        marginLeft: spacing.xs,
     },
     message: {
-        fontSize: 13,
-        color: '#666',
-        marginBottom: 6,
+        ...typography.body_small,
+        color: colors.secondary.gray_600,
+        marginBottom: spacing.xs,
         lineHeight: 18,
     },
     time: {
-        fontSize: 11,
-        color: '#999',
+        ...typography.caption,
+        color: colors.secondary.gray_500,
     },
 });
 
