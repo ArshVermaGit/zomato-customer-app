@@ -1,199 +1,287 @@
-import React from 'react';
-import { View, Text, StyleSheet, TextInput, TouchableOpacity, Image, KeyboardAvoidingView, Platform } from 'react-native';
-import { useForm, Controller } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { z } from 'zod';
+import React, { useState } from 'react';
+import {
+    View,
+    Text,
+    StyleSheet,
+    SafeAreaView,
+    ScrollView,
+    TouchableOpacity,
+    TextInput,
+    Image,
+    Dimensions
+} from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
+import { ChevronDown } from 'lucide-react-native';
+import { colors, spacing, typography, borderRadius } from '@zomato/design-tokens';
+import { Button } from '@zomato/ui';
 import { AuthStackParamList } from '../../navigation/AuthNavigator';
+import { LinearGradient } from 'expo-linear-gradient';
 
 type NavigationProp = StackNavigationProp<AuthStackParamList, 'Login'>;
 
-const schema = z.object({
-    phoneNumber: z.string().min(10, 'Phone number must be at least 10 digits').regex(/^[0-9]+$/, 'Invalid phone number'),
-});
+const { width } = Dimensions.get('window');
 
-const LoginScreen = () => {
+export const LoginScreen = () => {
     const navigation = useNavigation<NavigationProp>();
+    const [phoneNumber, setPhoneNumber] = useState('');
+    const [countryCode, setCountryCode] = useState('+91');
+    const [isLoading, setIsLoading] = useState(false);
 
-    const { control, handleSubmit, formState: { errors } } = useForm({
-        resolver: zodResolver(schema),
-    });
-
-    const onSubmit = (data: { phoneNumber: string }) => {
-        // Here you would normally trigger the API call to send OTP
-        console.log('Sending OTP to:', data.phoneNumber);
-        navigation.navigate('OTPVerification', { phoneNumber: data.phoneNumber, countryCode: '+91' });
+    const handleContinue = async () => {
+        setIsLoading(true);
+        // Simulate API call
+        setTimeout(() => {
+            setIsLoading(false);
+            navigation.navigate('OTPVerification', { phoneNumber: `${countryCode} ${phoneNumber}`, countryCode });
+        }, 1500);
     };
 
     return (
-        <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={styles.container}>
-            <View style={styles.header}>
-                <Image source={{ uri: 'https://upload.wikimedia.org/wikipedia/commons/7/75/Zomato_logo.png' }} style={styles.logo} resizeMode="contain" />
-                <Text style={styles.heading}>India's #1 Food Delivery App</Text>
-                <View style={styles.divider} />
-                <Text style={styles.subHeading}>Log in or sign up</Text>
+        <SafeAreaView style={styles.container}>
+            {/* Decorative Top Banner/Image (Optional, Zomato often uses food bg) */}
+            <View style={styles.bannerContainer}>
+                <Image
+                    source={{ uri: 'https://b.zmtcdn.com/web_assets/81f3ff974d82520780078ba1cfbd453a1583259680.png' }} // Zomato Login Banner style
+                    style={styles.bannerImage}
+                    resizeMode="cover"
+                />
+                <LinearGradient
+                    colors={['transparent', colors.secondary.white]}
+                    style={styles.gradient}
+                />
             </View>
 
-            <View style={styles.form}>
-                <View style={styles.inputContainer}>
-                    <View style={styles.countryCode}>
-                        <Text style={styles.countryText}>+91</Text>
+            <ScrollView contentContainerStyle={styles.scrollContent}>
+                {/* Header */}
+                <View style={styles.header}>
+                    <Text style={styles.title}>India's #1 Food Delivery App</Text>
+                    <View style={styles.dividerComponent}>
+                        <View style={styles.line} />
+                        <Text style={styles.loginText}>Log in or sign up</Text>
+                        <View style={styles.line} />
                     </View>
-                    <Controller
-                        control={control}
-                        name="phoneNumber"
-                        render={({ field: { onChange, value } }) => (
-                            <TextInput
-                                style={styles.input}
-                                placeholder="Enter Phone Number"
-                                keyboardType="number-pad"
-                                value={value}
-                                onChangeText={onChange}
-                                maxLength={10}
-                            />
-                        )}
+                </View>
+
+                {/* Phone Input */}
+                <View style={styles.form}>
+                    <View style={styles.phoneInputContainer}>
+                        {/* Country Code Selector */}
+                        <TouchableOpacity style={styles.countryCodeButton}>
+                            <Text style={styles.countryCodeText}>{countryCode}</Text>
+                            <ChevronDown size={16} color={colors.secondary.gray_600} />
+                        </TouchableOpacity>
+
+                        <View style={styles.divider} />
+
+                        {/* Phone Number Input */}
+                        <TextInput
+                            style={styles.phoneInput}
+                            placeholder="Enter mobile number"
+                            placeholderTextColor={colors.secondary.gray_500}
+                            keyboardType="phone-pad"
+                            value={phoneNumber}
+                            onChangeText={setPhoneNumber}
+                            maxLength={10}
+                        />
+                    </View>
+
+                    {/* Continue Button */}
+                    <Button
+                        variant="primary"
+                        fullWidth
+                        loading={isLoading}
+                        disabled={phoneNumber.length < 10}
+                        onPress={handleContinue}
+                        title="Continue"
+                        style={{ borderRadius: borderRadius.lg }} // Custom override if needed
                     />
                 </View>
-                {errors.phoneNumber && <Text style={styles.errorText}>{errors.phoneNumber.message}</Text>}
 
-                <TouchableOpacity style={styles.button} onPress={handleSubmit(onSubmit)}>
-                    <Text style={styles.buttonText}>Continue</Text>
-                </TouchableOpacity>
-
+                {/* Divider */}
                 <View style={styles.orDivider}>
-                    <View style={styles.line} />
+                    <View style={styles.orLine} />
                     <Text style={styles.orText}>or</Text>
-                    <View style={styles.line} />
+                    <View style={styles.orLine} />
                 </View>
 
-                {/* Social Login Placeholders */}
-                <TouchableOpacity style={styles.socialButton}>
-                    <Text style={styles.socialText}>Continue with Google</Text>
-                </TouchableOpacity>
-
-                {Platform.OS === 'ios' && (
+                {/* Social Login */}
+                <View style={styles.socialButtons}>
                     <TouchableOpacity style={styles.socialButton}>
-                        <Text style={styles.socialText}>Continue with Apple</Text>
+                        {/* Using simple colored views or text as placeholder if icons missing. 
+                 Real app would use SVG/Image assets. */}
+                        <View style={[styles.socialIconPlaceholder, { backgroundColor: '#DB4437' }]}>
+                            <Text style={{ color: 'white', fontWeight: 'bold' }}>G</Text>
+                        </View>
+                        <Text style={styles.socialButtonText}>Google</Text>
                     </TouchableOpacity>
-                )}
-            </View>
 
-            <Text style={styles.terms}>
-                By continuing, you agree to our Terms of Service & Privacy Policy
-            </Text>
-        </KeyboardAvoidingView>
+                    <TouchableOpacity style={styles.socialButton}>
+                        <View style={[styles.socialIconPlaceholder, { backgroundColor: '#000' }]}>
+                            <Text style={{ color: 'white', fontWeight: 'bold' }}></Text>
+                        </View>
+                        <Text style={styles.socialButtonText}>Apple</Text>
+                    </TouchableOpacity>
+                </View>
+
+                {/* Terms */}
+                <Text style={styles.terms}>
+                    By continuing, you agree to our{' '}
+                    <Text style={styles.link}>Terms of Service</Text>
+                    {' '}and{' '}
+                    <Text style={styles.link}>Privacy Policy</Text>
+                </Text>
+            </ScrollView>
+        </SafeAreaView>
     );
 };
 
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#fff',
-        padding: 20,
+        backgroundColor: colors.secondary.white,
+    },
+    bannerContainer: {
+        height: 200,
+        width: '100%',
+        position: 'relative',
+    },
+    bannerImage: {
+        width: '100%',
+        height: '100%',
+    },
+    gradient: {
+        position: 'absolute',
+        bottom: 0,
+        left: 0,
+        right: 0,
+        height: 100,
+    },
+    scrollContent: {
+        flexGrow: 1,
+        paddingHorizontal: spacing.xl,
+        paddingTop: spacing.lg,
+        paddingBottom: spacing['4xl'],
     },
     header: {
-        marginTop: 60,
         alignItems: 'center',
+        marginBottom: spacing.xl,
     },
-    logo: {
-        width: 150,
-        height: 50,
+    title: {
+        ...typography.h3,
+        color: colors.secondary.gray_900,
+        marginBottom: spacing.xl,
+        textAlign: 'center',
     },
-    heading: {
-        fontSize: 18,
-        fontWeight: 'bold',
-        marginTop: 10,
-    },
-    divider: {
-        width: 40,
-        height: 4,
-        backgroundColor: '#333',
-        marginVertical: 20,
-        borderRadius: 2,
-    },
-    subHeading: {
-        fontSize: 16,
-        color: '#666',
-        fontWeight: '600',
-    },
-    form: {
-        marginTop: 40,
-    },
-    inputContainer: {
-        flexDirection: 'row',
-        borderWidth: 1,
-        borderColor: '#ccc',
-        borderRadius: 8,
-        height: 50,
-        alignItems: 'center',
-    },
-    countryCode: {
-        paddingHorizontal: 15,
-        borderRightWidth: 1,
-        borderRightColor: '#ccc',
-    },
-    countryText: {
-        fontSize: 16,
-        fontWeight: '600',
-    },
-    input: {
-        flex: 1,
-        paddingHorizontal: 15,
-        fontSize: 16,
-    },
-    errorText: {
-        color: 'red',
-        fontSize: 12,
-        marginTop: 5,
-    },
-    button: {
-        backgroundColor: '#E23744',
-        height: 50,
-        borderRadius: 8,
-        justifyContent: 'center',
-        alignItems: 'center',
-        marginTop: 20,
-    },
-    buttonText: {
-        color: '#fff',
-        fontSize: 16,
-        fontWeight: 'bold',
-    },
-    orDivider: {
+    dividerComponent: {
         flexDirection: 'row',
         alignItems: 'center',
-        marginVertical: 20,
+        width: '100%',
+        marginBottom: spacing.md,
     },
     line: {
         flex: 1,
         height: 1,
-        backgroundColor: '#ccc',
+        backgroundColor: colors.secondary.gray_300,
+    },
+    loginText: {
+        ...typography.label_small,
+        color: colors.secondary.gray_500,
+        marginHorizontal: spacing.md,
+        textTransform: 'uppercase',
+        letterSpacing: 1,
+    },
+    form: {
+        marginBottom: spacing['3xl'],
+    },
+    phoneInputContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        backgroundColor: colors.secondary.white,
+        borderRadius: borderRadius.lg,
+        borderWidth: 1,
+        borderColor: colors.secondary.gray_300,
+        paddingHorizontal: spacing.base,
+        height: 50,
+        marginBottom: spacing.lg,
+    },
+    countryCodeButton: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: spacing.xs,
+        paddingRight: spacing.base,
+    },
+    countryCodeText: {
+        ...typography.body_large,
+        color: colors.secondary.gray_900,
+        fontWeight: '500',
+    },
+    divider: {
+        width: 1,
+        height: 24,
+        backgroundColor: colors.secondary.gray_300,
+        marginRight: spacing.base,
+    },
+    phoneInput: {
+        flex: 1,
+        ...typography.body_large,
+        color: colors.secondary.gray_900,
+        height: '100%',
+    },
+    orDivider: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginBottom: spacing.xl,
+    },
+    orLine: {
+        flex: 1,
+        height: 1,
+        backgroundColor: colors.secondary.gray_200,
     },
     orText: {
-        marginHorizontal: 10,
-        color: '#666',
+        ...typography.body_medium,
+        color: colors.secondary.gray_500,
+        marginHorizontal: spacing.base,
+    },
+    socialButtons: {
+        flexDirection: 'row',
+        gap: spacing.md,
+        marginBottom: spacing['2xl'],
+        justifyContent: 'center',
     },
     socialButton: {
-        borderWidth: 1,
-        borderColor: '#ccc',
-        height: 50,
-        borderRadius: 8,
-        justifyContent: 'center',
+        flex: 1, // Make them expand
+        flexDirection: 'row', // icon + text
+        paddingVertical: 12,
         alignItems: 'center',
-        marginTop: 10,
+        justifyContent: 'center',
+        backgroundColor: colors.secondary.white,
+        borderWidth: 1,
+        borderColor: colors.secondary.gray_200,
+        borderRadius: borderRadius.full,
+        gap: spacing.sm,
     },
-    socialText: {
-        fontSize: 14,
-        color: '#333',
-        fontWeight: '600',
+    socialIconPlaceholder: {
+        width: 20,
+        height: 20,
+        borderRadius: 10,
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    socialButtonText: {
+        ...typography.body_medium,
+        color: colors.secondary.gray_800,
     },
     terms: {
+        ...typography.caption,
+        color: colors.secondary.gray_600,
         textAlign: 'center',
-        color: '#999',
-        fontSize: 12,
-        marginTop: 'auto',
-        marginBottom: 20,
+        paddingHorizontal: spacing.xl,
+        lineHeight: 18,
+    },
+    link: {
+        color: colors.primary.zomato_red,
+        fontWeight: '600',
     },
 });
 
