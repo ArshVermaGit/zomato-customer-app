@@ -10,6 +10,7 @@ import { StackNavigationProp } from '@react-navigation/stack';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { ArrowLeft, Map, Edit3, Navigation } from 'lucide-react-native';
 import type { AddressStackParamList } from '../../types/address.types';
+import { colors, spacing, typography, borderRadius, shadows } from '@zomato/design-tokens';
 
 type NavigationProp = StackNavigationProp<AddressStackParamList, 'AddAddress'>;
 
@@ -49,7 +50,7 @@ const AddAddressScreen = () => {
                     onPress={() => navigation.goBack()}
                     style={styles.backButton}
                 >
-                    <ArrowLeft size={24} color="#333" />
+                    <ArrowLeft size={24} color={colors.secondary.gray_900} />
                 </TouchableOpacity>
                 <Text style={styles.headerTitle}>Add New Address</Text>
                 <View style={styles.headerRight} />
@@ -76,7 +77,7 @@ const AddAddressScreen = () => {
                         onPress={handleUseCurrentLocation}
                     >
                         <View style={[styles.iconContainer, styles.currentLocationIcon]}>
-                            <Navigation size={28} color="#fff" />
+                            <Navigation size={24} color="#fff" />
                         </View>
                         <View style={styles.optionContent}>
                             <Text style={styles.optionTitle}>Use Current Location</Text>
@@ -92,7 +93,7 @@ const AddAddressScreen = () => {
                         onPress={handleSelectFromMap}
                     >
                         <View style={[styles.iconContainer, styles.mapIcon]}>
-                            <Map size={28} color="#fff" />
+                            <Map size={24} color="#fff" />
                         </View>
                         <View style={styles.optionContent}>
                             <Text style={styles.optionTitle}>Select from Map</Text>
@@ -108,7 +109,7 @@ const AddAddressScreen = () => {
                         onPress={handleEnterManually}
                     >
                         <View style={[styles.iconContainer, styles.manualIcon]}>
-                            <Edit3 size={28} color="#fff" />
+                            <Edit3 size={24} color="#fff" />
                         </View>
                         <View style={styles.optionContent}>
                             <Text style={styles.optionTitle}>Enter Manually</Text>
@@ -126,51 +127,49 @@ const AddAddressScreen = () => {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#fff',
+        backgroundColor: colors.secondary.white,
     },
     header: {
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'space-between',
-        paddingHorizontal: 16,
-        paddingVertical: 12,
-        backgroundColor: '#fff',
+        paddingHorizontal: spacing.md,
+        paddingVertical: spacing.md,
+        backgroundColor: colors.secondary.white,
         borderBottomWidth: 1,
-        borderBottomColor: '#F0F0F0',
+        borderBottomColor: colors.secondary.gray_100,
     },
     backButton: {
         padding: 4,
     },
     headerTitle: {
-        fontSize: 18,
-        fontWeight: '600',
-        color: '#333',
+        ...typography.h4,
+        color: colors.secondary.gray_900,
     },
     headerRight: {
         width: 32,
     },
     content: {
         flex: 1,
-        padding: 24,
+        padding: spacing.xl,
         alignItems: 'center',
     },
     illustration: {
         width: 140,
         height: 140,
-        marginBottom: 24,
+        marginBottom: spacing.xl,
     },
     title: {
-        fontSize: 20,
-        fontWeight: '700',
-        color: '#333',
+        ...typography.h3,
+        color: colors.secondary.gray_900,
         textAlign: 'center',
-        marginBottom: 8,
+        marginBottom: spacing.sm,
     },
     subtitle: {
-        fontSize: 14,
-        color: '#666',
+        ...typography.body_medium,
+        color: colors.secondary.gray_600,
         textAlign: 'center',
-        marginBottom: 32,
+        marginBottom: spacing.xl,
     },
     optionsContainer: {
         width: '100%',
@@ -178,31 +177,27 @@ const styles = StyleSheet.create({
     optionCard: {
         flexDirection: 'row',
         alignItems: 'center',
-        backgroundColor: '#fff',
-        borderRadius: 16,
-        padding: 16,
-        marginBottom: 16,
-        elevation: 3,
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.1,
-        shadowRadius: 4,
+        backgroundColor: colors.secondary.white,
+        borderRadius: borderRadius.xl,
+        padding: spacing.md,
+        marginBottom: spacing.md,
         borderWidth: 1,
-        borderColor: '#F0F0F0',
+        borderColor: colors.secondary.gray_200,
+        ...shadows.sm,
     },
     iconContainer: {
-        width: 56,
-        height: 56,
-        borderRadius: 14,
+        width: 48,
+        height: 48,
+        borderRadius: borderRadius.lg,
         justifyContent: 'center',
         alignItems: 'center',
-        marginRight: 16,
+        marginRight: spacing.md,
     },
     currentLocationIcon: {
         backgroundColor: '#4CAF50',
     },
     mapIcon: {
-        backgroundColor: '#E23744',
+        backgroundColor: colors.primary.zomato_red,
     },
     manualIcon: {
         backgroundColor: '#2196F3',
@@ -211,14 +206,14 @@ const styles = StyleSheet.create({
         flex: 1,
     },
     optionTitle: {
+        ...typography.h4,
+        color: colors.secondary.gray_900,
         fontSize: 16,
-        fontWeight: '600',
-        color: '#333',
-        marginBottom: 4,
+        marginBottom: 2,
     },
     optionDescription: {
-        fontSize: 13,
-        color: '#666',
+        ...typography.caption,
+        color: colors.secondary.gray_600,
         lineHeight: 18,
     },
 });
