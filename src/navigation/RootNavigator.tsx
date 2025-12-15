@@ -25,6 +25,9 @@ import { NotificationService } from '../services/notification.service';
 // Order screens
 const ActiveOrderScreen = React.lazy(() => import('../screens/Order/ActiveOrderScreen'));
 const RateOrderScreen = React.lazy(() => import('../screens/Review/RateOrderScreen'));
+const PaymentScreen = React.lazy(() => import('../screens/Payment/PaymentScreen'));
+const OrderSuccessScreen = React.lazy(() => import('../screens/Order/OrderSuccessScreen'));
+const ReviewSuccessScreen = React.lazy(() => import('../screens/Review/ReviewSuccessScreen'));
 
 import type { AddressStackParamList } from '../types/address.types';
 import type { OrderStackParamList } from '../types/order.types';
@@ -48,6 +51,9 @@ export type RootStackParamList = {
     // Order tracking
     ActiveOrder: OrderStackParamList['ActiveOrder'];
     RateOrder: OrderStackParamList['RateOrder'];
+    Payment: undefined;
+    OrderSuccess: undefined;
+    ReviewSuccess: { pointsEarned: number };
     // Profile
     Profile: undefined;
     EditProfile: undefined;
@@ -136,6 +142,15 @@ const RootNavigator = () => {
                     }}
                 >
                     {props => <React.Suspense fallback={<View><ActivityIndicator /></View>}><RateOrderScreen /></React.Suspense>}
+                </Stack.Screen>
+                <Stack.Screen name="Payment">
+                    {props => <React.Suspense fallback={<View><ActivityIndicator /></View>}><PaymentScreen /></React.Suspense>}
+                </Stack.Screen>
+                <Stack.Screen name="OrderSuccess" options={{ headerShown: false, gestureEnabled: false }}>
+                    {props => <React.Suspense fallback={<View><ActivityIndicator /></View>}><OrderSuccessScreen /></React.Suspense>}
+                </Stack.Screen>
+                <Stack.Screen name="ReviewSuccess" options={{ headerShown: false }}>
+                    {props => <React.Suspense fallback={<View><ActivityIndicator /></View>}><ReviewSuccessScreen /></React.Suspense>}
                 </Stack.Screen>
             </Stack.Group>
 
