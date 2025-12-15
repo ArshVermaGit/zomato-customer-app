@@ -4,7 +4,7 @@
  */
 
 import React, { useRef, useEffect, useState } from 'react';
-import { View, Text, StyleSheet, Dimensions } from 'react-native';
+import { View, Text, StyleSheet, Dimensions, StyleProp, ViewStyle } from 'react-native';
 import MapView, { Marker, Polyline, PROVIDER_GOOGLE } from 'react-native-maps';
 import { MapPin, Navigation, Home } from 'lucide-react-native';
 import type { Order, DeliveryLocationUpdate } from '../../types/order.types';
@@ -12,11 +12,12 @@ import type { Order, DeliveryLocationUpdate } from '../../types/order.types';
 interface LiveDeliveryMapProps {
     order: Order;
     deliveryLocation: DeliveryLocationUpdate | null;
+    style?: StyleProp<ViewStyle>;
 }
 
 const { width } = Dimensions.get('window');
 
-const LiveDeliveryMap: React.FC<LiveDeliveryMapProps> = ({ order, deliveryLocation }) => {
+const LiveDeliveryMap: React.FC<LiveDeliveryMapProps> = ({ order, deliveryLocation, style }) => {
     const mapRef = useRef<MapView>(null);
     const [route, setRoute] = useState<{ latitude: number; longitude: number }[]>([]);
 
@@ -104,7 +105,7 @@ const LiveDeliveryMap: React.FC<LiveDeliveryMapProps> = ({ order, deliveryLocati
             : null;
 
     return (
-        <View style={styles.container}>
+        <View style={[styles.container, style]}>
             <MapView
                 ref={mapRef}
                 style={styles.map}
@@ -152,6 +153,7 @@ const LiveDeliveryMap: React.FC<LiveDeliveryMapProps> = ({ order, deliveryLocati
                     <Marker
                         coordinate={deliveryPartnerCoords}
                         title={order.deliveryPartner?.name || 'Delivery Partner'}
+                        zIndex={999}
                     >
                         <View
                             style={[
@@ -235,8 +237,8 @@ const styles = StyleSheet.create({
     },
     etaOverlay: {
         position: 'absolute',
-        top: 12,
-        right: 12,
+        top: 40, // Adjusted for full screen map (avoid header overlap if needed)
+        right: 20,
         backgroundColor: '#fff',
         paddingHorizontal: 12,
         paddingVertical: 8,
