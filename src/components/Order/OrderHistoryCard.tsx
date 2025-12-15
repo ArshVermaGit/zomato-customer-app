@@ -6,6 +6,7 @@
 import React from 'react';
 import { View, StyleSheet, Text, Image, TouchableOpacity } from 'react-native';
 import { ChevronRight, RefreshCw, CheckCircle2, XCircle } from 'lucide-react-native';
+import { colors, spacing, typography, borderRadius, shadows } from '@zomato/design-tokens';
 import { Order, OrderStatus } from '../../types/order.types';
 
 interface OrderHistoryCardProps {
@@ -64,13 +65,13 @@ const OrderHistoryCard: React.FC<OrderHistoryCardProps> = ({ order, onPress, onR
             {/* Footer: Actions */}
             <View style={styles.footer}>
                 <TouchableOpacity style={styles.reorderButton} onPress={onReorder}>
-                    <RefreshCw size={14} color="#E23744" />
+                    <RefreshCw size={14} color={colors.primary.zomato_red} />
                     <Text style={styles.reorderText}>Reorder</Text>
                 </TouchableOpacity>
 
                 <TouchableOpacity style={styles.detailsButton} onPress={onPress}>
                     <Text style={styles.detailsText}>View Details</Text>
-                    <ChevronRight size={14} color="#666" />
+                    <ChevronRight size={14} color={colors.secondary.gray_600} />
                 </TouchableOpacity>
             </View>
         </TouchableOpacity>
@@ -79,25 +80,21 @@ const OrderHistoryCard: React.FC<OrderHistoryCardProps> = ({ order, onPress, onR
 
 const styles = StyleSheet.create({
     container: {
-        backgroundColor: '#fff',
-        marginHorizontal: 16,
-        marginBottom: 16,
-        borderRadius: 12,
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.05,
-        shadowRadius: 4,
-        elevation: 2,
+        backgroundColor: colors.secondary.white,
+        marginHorizontal: spacing.md,
+        marginBottom: spacing.md,
+        borderRadius: borderRadius.lg,
         borderWidth: 1,
-        borderColor: '#F0F0F0',
+        borderColor: colors.secondary.gray_200,
+        ...shadows.sm,
     },
     header: {
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
-        padding: 12,
+        padding: spacing.md,
         borderBottomWidth: 1,
-        borderBottomColor: '#F5F5F5',
+        borderBottomColor: colors.secondary.gray_100,
     },
     restaurantInfo: {
         flexDirection: 'row',
@@ -107,28 +104,28 @@ const styles = StyleSheet.create({
     image: {
         width: 40,
         height: 40,
-        borderRadius: 8,
-        marginRight: 10,
-        backgroundColor: '#F0F0F0',
+        borderRadius: borderRadius.md,
+        marginRight: spacing.sm,
+        backgroundColor: colors.secondary.gray_100,
     },
     textContainer: {
         flex: 1,
-        marginRight: 8,
+        marginRight: spacing.xs,
     },
     restaurantName: {
-        fontSize: 15,
+        ...typography.body_large,
         fontWeight: '600',
-        color: '#333',
+        color: colors.secondary.gray_900,
         marginBottom: 2,
     },
     location: {
-        fontSize: 12,
-        color: '#888',
+        ...typography.caption,
+        color: colors.secondary.gray_600,
     },
     statusBadge: {
-        paddingHorizontal: 8,
+        paddingHorizontal: spacing.sm,
         paddingVertical: 4,
-        borderRadius: 6,
+        borderRadius: borderRadius.sm,
     },
     deliveredBadge: {
         backgroundColor: '#E8F5E9',
@@ -137,8 +134,8 @@ const styles = StyleSheet.create({
         backgroundColor: '#FFEBEE',
     },
     statusText: {
-        fontSize: 11,
-        fontWeight: '500',
+        ...typography.caption,
+        fontWeight: '600',
     },
     deliveredText: {
         color: '#2E7D32',
@@ -147,64 +144,64 @@ const styles = StyleSheet.create({
         color: '#C62828',
     },
     content: {
-        padding: 12,
+        padding: spacing.md,
     },
     itemsText: {
-        fontSize: 13,
-        color: '#555',
+        ...typography.body_medium,
+        color: colors.secondary.gray_700,
         lineHeight: 18,
-        marginBottom: 8,
+        marginBottom: spacing.sm,
     },
     dateText: {
-        fontSize: 11,
-        color: '#999',
-        marginBottom: 8,
+        ...typography.caption,
+        color: colors.secondary.gray_500,
+        marginBottom: spacing.xs,
     },
     priceRow: {
         flexDirection: 'row',
         alignItems: 'center',
     },
     totalLabel: {
-        fontSize: 13,
-        color: '#666',
+        ...typography.body_medium,
+        color: colors.secondary.gray_600,
     },
     price: {
-        fontSize: 14,
+        ...typography.body_large,
         fontWeight: '700',
-        color: '#333',
+        color: colors.secondary.gray_900,
     },
     footer: {
         flexDirection: 'row',
         borderTopWidth: 1,
-        borderTopColor: '#F5F5F5',
+        borderTopColor: colors.secondary.gray_100,
     },
     reorderButton: {
         flex: 1,
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'center',
-        padding: 12,
+        padding: spacing.md,
         borderRightWidth: 1,
-        borderRightColor: '#F5F5F5',
+        borderRightColor: colors.secondary.gray_100,
         gap: 6,
     },
     reorderText: {
-        fontSize: 13,
+        ...typography.button_small,
         fontWeight: '600',
-        color: '#E23744',
+        color: colors.primary.zomato_red,
     },
     detailsButton: {
         flex: 1,
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'center',
-        padding: 12,
+        padding: spacing.md,
         gap: 4,
     },
     detailsText: {
-        fontSize: 13,
+        ...typography.button_small,
         fontWeight: '500',
-        color: '#666',
+        color: colors.secondary.gray_600,
     },
 });
 
