@@ -50,12 +50,6 @@ The primary interface for users to discover restaurants, browse menus, and place
     - Press `a` for Android Emulator.
     - Scan the QR code with the Expo Go app on your physical device.
 
-## 📸 Screenshots
-
-| Home Screen | Restaurant Page | Cart | Tracking |
-|-------------|-----------------|------|----------|
-| ![Home](https://placeholder.com/home.png) | ![Restaurant](https://placeholder.com/rest.png) | ![Cart](https://placeholder.com/cart.png) | ![Track](https://placeholder.com/track.png) |
-
 *(Note: Replace placeholders with actual screenshots)*
 
 ## 👨‍💻 Author
@@ -67,7 +61,7 @@ Connect with me:
 - 🐙 **GitHub**: [ArshVermaGit](https://github.com/ArshVermaGit)
 - 💼 **LinkedIn**: [arshvermadev](https://www.linkedin.com/in/arshvermadev/)
 - ✖️ **X (Twitter)**: [@TheArshVerma](https://x.com/TheArshVerma)
-- 📧 **Email**: [Arshvermadev@gmail.com](mailto:Arshvermadev@gmail.com)
+- 📧 **Email**: [Arshvermadev@gmail.com](mailto:Arshverma.dev@gmail.com)
 
 ---
 
