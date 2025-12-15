@@ -21,6 +21,7 @@ import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { X, Check } from 'lucide-react-native';
+import { colors, spacing, typography, borderRadius, shadows } from '@zomato/design-tokens';
 import LottieView from 'lottie-react-native';
 
 import {
@@ -103,11 +104,8 @@ const RateOrderScreen = () => {
             const response = await ReviewService.submitReview(request);
             if (response.success) {
                 setPointsEarned(response.pointsEarned || 0);
-                setShowSuccess(true);
-                // Delay navigation to show success state
-                setTimeout(() => {
-                    navigation.navigate('Main'); // Or generic 'Home'
-                }, 2500);
+                // Navigate to Success Screen
+                navigation.navigate('ReviewSuccess', { pointsEarned: response.pointsEarned || 0 });
             }
         } catch (error) {
             Alert.alert('Error', 'Failed to submit review. Please try again.');
@@ -120,26 +118,7 @@ const RateOrderScreen = () => {
         navigation.goBack();
     };
 
-    if (showSuccess) {
-        return (
-            <SafeAreaView style={styles.successContainer}>
-                <LottieView
-                    source={require('../../assets/animations/success-check.json')} // Placeholder
-                    autoPlay
-                    loop={false}
-                    style={styles.successAnimation}
-                />
-                <Text style={styles.successTitle}>Thank You!</Text>
-                <Text style={styles.successSubtitle}>Your feedback helps us improve.</Text>
 
-                {pointsEarned > 0 && (
-                    <View style={styles.pointsContainer}>
-                        <Text style={styles.pointsText}>You earned {pointsEarned} pts!</Text>
-                    </View>
-                )}
-            </SafeAreaView>
-        );
-    }
 
     if (!order) {
         // Fallback if order not found (shouldn't happen in this flow)
@@ -156,7 +135,7 @@ const RateOrderScreen = () => {
             <View style={styles.header}>
                 <Text style={styles.headerTitle}>Rate Order</Text>
                 <TouchableOpacity onPress={handleSkip} style={styles.closeButton}>
-                    <X size={24} color="#333" />
+                    <X size={24} color={colors.secondary.gray_900} />
                 </TouchableOpacity>
             </View>
 
@@ -249,7 +228,7 @@ const RateOrderScreen = () => {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#fff',
+        backgroundColor: colors.secondary.white,
     },
     successContainer: {
         flex: 1,
@@ -297,9 +276,8 @@ const styles = StyleSheet.create({
         position: 'relative',
     },
     headerTitle: {
-        fontSize: 17,
-        fontWeight: '600',
-        color: '#333',
+        ...typography.h4,
+        color: colors.secondary.gray_900,
     },
     closeButton: {
         position: 'absolute',
@@ -322,9 +300,8 @@ const styles = StyleSheet.create({
         borderColor: '#E0E0E0',
     },
     restaurantName: {
-        fontSize: 20,
-        fontWeight: '700',
-        color: '#333',
+        ...typography.h3,
+        color: colors.secondary.gray_900,
         marginBottom: 4,
         textAlign: 'center',
     },
@@ -360,22 +337,21 @@ const styles = StyleSheet.create({
         padding: 16,
         borderTopWidth: 1,
         borderTopColor: '#F0F0F0',
-        backgroundColor: '#fff',
+        backgroundColor: colors.secondary.white,
     },
     submitButton: {
-        backgroundColor: '#E23744',
-        borderRadius: 12,
-        paddingVertical: 16,
+        backgroundColor: colors.primary.zomato_red,
+        borderRadius: borderRadius.lg,
+        paddingVertical: spacing.md,
         alignItems: 'center',
         justifyContent: 'center',
     },
     disabledButton: {
-        backgroundColor: '#FFCDD2',
+        backgroundColor: colors.secondary.gray_300,
     },
     submitButtonText: {
-        color: '#fff',
-        fontSize: 16,
-        fontWeight: '700',
+        color: colors.secondary.white,
+        ...typography.button_large,
     },
 });
 
