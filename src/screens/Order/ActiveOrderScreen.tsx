@@ -1,6 +1,6 @@
 /**
  * ActiveOrderScreen
- * Main order tracking screen with collapsed and expanded states
+ * Main order tracking screen with Live Map background and Bottom Sheet details
  */
 
 import React, { useEffect, useState, useCallback } from 'react';
@@ -10,27 +10,20 @@ import {
     StyleSheet,
     ScrollView,
     TouchableOpacity,
-    Animated,
     Linking,
-    Image,
     ActivityIndicator,
     Dimensions,
+    Platform,
+    StatusBar,
 } from 'react-native';
 import { useNavigation, useRoute, useFocusEffect } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { RouteProp } from '@react-navigation/native';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import { useDispatch, useSelector } from 'react-redux';
-import {
-    ArrowLeft,
-    Phone,
-    HelpCircle,
-    X,
-    ChevronDown,
-} from 'lucide-react-native';
+import { ArrowLeft, HelpCircle, Phone, ChevronUp } from 'lucide-react-native';
+import { colors, spacing, typography, borderRadius, shadows } from '@zomato/design-tokens';
 import type { RootState, AppDispatch } from '../../store/store';
-import type { OrderStackParamList, WSMessage, OrderStatus } from '../../types/order.types';
-import { OrderStatus as OrderStatusEnum } from '../../types/order.types';
+import type { OrderStackParamList, WSMessage } from '../../types/order.types';
 import {
     fetchOrder,
     updateOrderStatus,
@@ -42,7 +35,6 @@ import {
     cancelOrder,
 } from '../../store/slices/orderSlice';
 import { WebSocketService } from '../../services/websocket.service';
-import { OrderTrackingService } from '../../services/orderTracking.service';
 import {
     OrderStatusTimeline,
     LiveDeliveryMap,
@@ -50,11 +42,15 @@ import {
     OrderItemsSummary,
     OrderCompletedModal,
 } from '../../components/Order';
+import Animated, { useAnimatedStyle, useSharedValue, withSpring, withTiming } from 'react-native-reanimated';
+import { GestureHandlerRootView, PanGestureHandler } from 'react-native-gesture-handler';
 
 type NavigationProp = StackNavigationProp<OrderStackParamList, 'ActiveOrder'>;
 type RouteProps = RouteProp<OrderStackParamList, 'ActiveOrder'>;
 
-const { height: SCREEN_HEIGHT } = Dimensions.get('window');
+const { height: SCREEN_HEIGHT, width: SCREEN_WIDTH } = Dimensions.get('window');
+const MAP_HEIGHT = SCREEN_HEIGHT * 0.55;
+const SHEET_MIN_HEIGHT = SCREEN_HEIGHT * 0.45;
 
 const ActiveOrderScreen = () => {
     const navigation = useNavigation<NavigationProp>();
@@ -79,17 +75,13 @@ const ActiveOrderScreen = () => {
         }, [dispatch, orderId])
     );
 
-    // Connect to WebSocket for real-time updates
+    // Connect to WebSocket
     useEffect(() => {
         if (!activeOrder) return;
-
         const handleMessage = (message: WSMessage) => {
             switch (message.type) {
                 case 'status_update':
-                    dispatch(updateOrderStatus({
-                        status: message.payload.status,
-                        timestamp: message.payload.timestamp,
-                    }));
+                    dispatch(updateOrderStatus({ status: message.payload.status, timestamp: message.payload.timestamp }));
                     break;
                 case 'location_update':
                     dispatch(updateDeliveryLocation(message.payload));
@@ -101,17 +93,13 @@ const ActiveOrderScreen = () => {
                     dispatch(assignDeliveryPartner(message.payload));
                     break;
                 case 'order_completed':
-                    dispatch(setOrderCompleted({
-                        deliveredAt: message.payload.deliveredAt,
-                    }));
+                    dispatch(setOrderCompleted({ deliveredAt: message.payload.deliveredAt }));
                     setShowCompletedModal(true);
                     break;
             }
         };
-
         WebSocketService.connect(orderId, handleMessage);
         dispatch(setTrackingConnected(true));
-
         return () => {
             WebSocketService.disconnect(orderId, handleMessage);
             dispatch(setTrackingConnected(false));
@@ -119,25 +107,11 @@ const ActiveOrderScreen = () => {
     }, [activeOrder?.id, orderId, dispatch]);
 
     const handleCallRestaurant = () => {
-        if (activeOrder?.restaurant.phone) {
-            Linking.openURL(`tel:${activeOrder.restaurant.phone}`);
-        }
-    };
-
-    const handleCallPartner = () => {
-        if (activeOrder?.deliveryPartner?.phone) {
-            Linking.openURL(`tel:${activeOrder.deliveryPartner.phone}`);
-        }
-    };
-
-    const handleHelp = () => {
-        // Navigate to help screen
-        console.log('Navigate to help');
+        if (activeOrder?.restaurant.phone) Linking.openURL(`tel:${activeOrder.restaurant.phone}`);
     };
 
     const handleCancelOrder = async () => {
         if (!activeOrder?.isCancellable) return;
-
         setIsCancelling(true);
         try {
             await dispatch(cancelOrder(orderId)).unwrap();
@@ -149,394 +123,291 @@ const ActiveOrderScreen = () => {
         }
     };
 
-    const handleRateOrder = () => {
-        setShowCompletedModal(false);
-        // Navigation is handled inside the modal now or we can do it here if we pass navigation
-        // But since we updated the modal to handle it, we might not need this handler prop anymore
-        // However, for backward compatibility or if avoiding navigation in modal:
-        navigation.navigate('RateOrder', { orderId });
-    };
-
-    const handleViewReceipt = () => {
-        setShowCompletedModal(false);
-        // Navigate to receipt screen
-        console.log('Navigate to receipt');
-    };
-
-    const handleReorder = () => {
-        setShowCompletedModal(false);
-        // Navigate to restaurant and add items to cart
-        console.log('Reorder');
+    const handleHelp = () => {
+        // Navigate to help
     };
 
     if (isLoading && !activeOrder) {
         return (
-            <SafeAreaView style={styles.loadingContainer}>
-                <ActivityIndicator size="large" color="#E23744" />
-                <Text style={styles.loadingText}>Loading order...</Text>
-            </SafeAreaView>
+            <View style={styles.loadingContainer}>
+                <ActivityIndicator size="large" color={colors.primary.zomato_red} />
+                <Text style={styles.loadingText}>Fetching your order...</Text>
+            </View>
         );
     }
 
     if (error || !activeOrder) {
         return (
-            <SafeAreaView style={styles.errorContainer}>
-                <Text style={styles.errorText}>
-                    {error || 'Order not found'}
-                </Text>
-                <TouchableOpacity
-                    style={styles.retryButton}
-                    onPress={() => dispatch(fetchOrder(orderId))}
-                >
+            <View style={styles.errorContainer}>
+                <Text style={styles.errorText}>{error || 'Order not found'}</Text>
+                <TouchableOpacity style={styles.retryButton} onPress={() => dispatch(fetchOrder(orderId))}>
                     <Text style={styles.retryButtonText}>Retry</Text>
                 </TouchableOpacity>
-            </SafeAreaView>
+            </View>
         );
     }
 
-    const isOutForDelivery = activeOrder.status === OrderStatusEnum.OUT_FOR_DELIVERY;
-    const etaText = OrderTrackingService.getEstimatedTimeRemaining(activeOrder);
-
     return (
-        <SafeAreaView style={styles.container} edges={['top']}>
-            {/* Header */}
+        <View style={styles.container}>
+            <StatusBar barStyle="dark-content" backgroundColor="transparent" translucent />
+
+            {/* 1. Full Screen Map (Background) */}
+            <View style={styles.mapContainer}>
+                <LiveDeliveryMap
+                    order={activeOrder}
+                    deliveryLocation={deliveryPartnerLocation}
+                    style={styles.map}
+                />
+            </View>
+
+            {/* 2. Floating Header */}
             <View style={styles.header}>
-                <TouchableOpacity
-                    onPress={() => navigation.goBack()}
-                    style={styles.backButton}
-                >
-                    <ArrowLeft size={24} color="#333" />
+                <TouchableOpacity onPress={() => navigation.goBack()} style={styles.iconButton}>
+                    <ArrowLeft size={24} color={colors.secondary.gray_900} />
                 </TouchableOpacity>
-                <View style={styles.headerCenter}>
-                    <Text style={styles.headerTitle}>Track Order</Text>
-                    <Text style={styles.orderNumber}>#{activeOrder.orderNumber}</Text>
+                <View style={styles.headerTitleContainer}>
+                    <Text style={styles.headerTitle}>Order #{activeOrder.orderNumber}</Text>
                 </View>
-                <TouchableOpacity onPress={handleHelp} style={styles.helpButton}>
-                    <HelpCircle size={24} color="#666" />
+                <TouchableOpacity onPress={handleHelp} style={styles.iconButton}>
+                    <HelpCircle size={24} color={colors.secondary.gray_900} />
                 </TouchableOpacity>
             </View>
 
-            <ScrollView
-                style={styles.scrollView}
-                contentContainerStyle={styles.scrollContent}
-                showsVerticalScrollIndicator={false}
-            >
-                {/* Restaurant Info */}
-                <View style={styles.restaurantCard}>
-                    <Image
-                        source={{ uri: activeOrder.restaurant.image }}
-                        style={styles.restaurantImage}
-                    />
-                    <View style={styles.restaurantInfo}>
-                        <Text style={styles.restaurantName}>
-                            {activeOrder.restaurant.name}
-                        </Text>
-                        <Text style={styles.restaurantAddress}>
-                            {activeOrder.restaurant.address}
-                        </Text>
+            {/* 3. Bottom Sheet Content */}
+            <View style={styles.bottomSheet}>
+                <View style={styles.handleBar} />
+
+                <ScrollView
+                    showsVerticalScrollIndicator={false}
+                    contentContainerStyle={styles.bottomSheetContent}
+                >
+                    {/* Status Header */}
+                    <Text style={styles.statusTitle}>
+                        {activeOrder.status.replace('_', ' ')}
+                    </Text>
+                    <Text style={styles.subStatus}>
+                        {activeOrder.deliveryPartner ? `${activeOrder.deliveryPartner.name} is on the way` : 'Preparing your food'}
+                    </Text>
+
+                    {/* Delivery Partner Card */}
+                    {activeOrder.deliveryPartner && (
+                        <View style={styles.section}>
+                            <DeliveryPartnerCard
+                                partner={activeOrder.deliveryPartner}
+                                onChat={() => { }}
+                            />
+                        </View>
+                    )}
+
+                    {/* Timeline */}
+                    <View style={styles.section}>
+                        <OrderStatusTimeline timeline={activeOrder.timeline} />
                     </View>
-                    <TouchableOpacity
-                        style={styles.callRestaurantButton}
-                        onPress={handleCallRestaurant}
-                    >
-                        <Phone size={18} color="#E23744" />
-                    </TouchableOpacity>
-                </View>
 
-                {/* ETA Banner */}
-                <View style={styles.etaBanner}>
-                    <View style={styles.etaLeft}>
-                        <Text style={styles.etaLabel}>Estimated Delivery</Text>
-                        <Text style={styles.etaTime}>{etaText}</Text>
+                    {/* Order Items */}
+                    <View style={styles.section}>
+                        <Text style={styles.sectionHeader}>Order Details</Text>
+                        <OrderItemsSummary items={activeOrder.items} />
                     </View>
-                    <View style={styles.etaRight}>
-                        <View style={styles.pulseDot} />
+
+                    {/* Restaurant Info */}
+                    <View style={styles.restaurantRow}>
+                        <Text style={styles.restaurantName}>From {activeOrder.restaurant.name}</Text>
+                        <TouchableOpacity onPress={handleCallRestaurant} style={styles.callRestButton}>
+                            <Phone size={16} color={colors.primary.zomato_red} />
+                            <Text style={styles.callRestText}>Call</Text>
+                        </TouchableOpacity>
                     </View>
-                </View>
 
-                {/* Live Map (when out for delivery) */}
-                {isOutForDelivery && activeOrder.deliveryPartner && (
-                    <LiveDeliveryMap
-                        order={activeOrder}
-                        deliveryLocation={deliveryPartnerLocation}
-                    />
-                )}
-
-                {/* Delivery Partner Card */}
-                {activeOrder.deliveryPartner && (
-                    <DeliveryPartnerCard
-                        partner={activeOrder.deliveryPartner}
-                        onChat={() => console.log('Chat')}
-                    />
-                )}
-
-                {/* Order Status Timeline */}
-                <OrderStatusTimeline timeline={activeOrder.timeline} />
-
-                {/* Order Items */}
-                <OrderItemsSummary items={activeOrder.items} />
-
-                {/* Actions */}
-                <View style={styles.actionsContainer}>
+                    {/* Cancel Button */}
                     {activeOrder.isCancellable && (
                         <TouchableOpacity
                             style={styles.cancelButton}
                             onPress={handleCancelOrder}
                             disabled={isCancelling}
                         >
-                            <X size={18} color="#E23744" />
                             <Text style={styles.cancelButtonText}>
                                 {isCancelling ? 'Cancelling...' : 'Cancel Order'}
                             </Text>
                         </TouchableOpacity>
                     )}
-                </View>
 
-                {/* Bill Summary */}
-                <View style={styles.billCard}>
-                    <Text style={styles.billTitle}>Bill Summary</Text>
-                    <View style={styles.billRow}>
-                        <Text style={styles.billLabel}>Item Total</Text>
-                        <Text style={styles.billValue}>₹{activeOrder.itemsTotal}</Text>
-                    </View>
-                    <View style={styles.billRow}>
-                        <Text style={styles.billLabel}>Delivery Fee</Text>
-                        <Text style={styles.billValue}>₹{activeOrder.deliveryFee}</Text>
-                    </View>
-                    <View style={styles.billRow}>
-                        <Text style={styles.billLabel}>Taxes</Text>
-                        <Text style={styles.billValue}>₹{activeOrder.taxes}</Text>
-                    </View>
-                    {activeOrder.discount > 0 && (
-                        <View style={styles.billRow}>
-                            <Text style={styles.billLabel}>Discount</Text>
-                            <Text style={[styles.billValue, styles.discountValue]}>
-                                -₹{activeOrder.discount}
-                            </Text>
-                        </View>
-                    )}
-                    <View style={styles.billDivider} />
-                    <View style={styles.billRow}>
-                        <Text style={styles.grandTotalLabel}>Grand Total</Text>
-                        <Text style={styles.grandTotalValue}>₹{activeOrder.grandTotal}</Text>
-                    </View>
-                </View>
-
-                <View style={{ height: 40 }} />
-            </ScrollView>
+                    <View style={{ height: 100 }} />
+                </ScrollView>
+            </View>
 
             {/* Order Completed Modal */}
             <OrderCompletedModal
                 visible={showCompletedModal}
                 order={activeOrder}
                 onClose={() => setShowCompletedModal(false)}
-                onViewReceipt={handleViewReceipt}
-                onReorder={handleReorder}
+                onViewReceipt={() => { }}
+                onReorder={() => { }}
             />
-        </SafeAreaView>
+        </View>
     );
 };
 
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#F5F6F8',
+        backgroundColor: colors.secondary.white,
+    },
+    mapContainer: {
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        right: 0,
+        height: MAP_HEIGHT + 30, // Slight overlap
+    },
+    map: {
+        flex: 1,
+        height: '100%',
+        marginBottom: 0, // Override default margin
+        borderRadius: 0,
+    },
+    header: {
+        position: 'absolute',
+        top: 0, // StatusBar handled by translucent
+        left: 0,
+        right: 0,
+        flexDirection: 'row',
+        alignItems: 'center',
+        paddingHorizontal: spacing.md,
+        paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight! + 10 : 50,
+        zIndex: 10,
+    },
+    iconButton: {
+        width: 40,
+        height: 40,
+        borderRadius: 20,
+        backgroundColor: colors.secondary.white,
+        justifyContent: 'center',
+        alignItems: 'center',
+        ...shadows.sm,
+    },
+    headerTitleContainer: {
+        flex: 1,
+        alignItems: 'center',
+    },
+    headerTitle: {
+        ...typography.body_large,
+        fontWeight: 'bold',
+        backgroundColor: colors.secondary.white,
+        paddingHorizontal: spacing.lg,
+        paddingVertical: spacing.xs,
+        borderRadius: borderRadius.full,
+        overflow: 'hidden',
+        ...shadows.sm,
+    },
+    bottomSheet: {
+        position: 'absolute',
+        bottom: 0,
+        left: 0,
+        right: 0,
+        height: SHEET_MIN_HEIGHT,
+        backgroundColor: colors.secondary.white,
+        borderTopLeftRadius: borderRadius.xl,
+        borderTopRightRadius: borderRadius.xl,
+        ...shadows.lg,
+        elevation: 20,
+    },
+    handleBar: {
+        width: 40,
+        height: 5,
+        backgroundColor: colors.secondary.gray_300,
+        borderRadius: 2.5,
+        alignSelf: 'center',
+        marginTop: spacing.sm,
+        marginBottom: spacing.xs,
+    },
+    bottomSheetContent: {
+        paddingHorizontal: spacing.lg,
+        paddingTop: spacing.sm,
+    },
+    statusTitle: {
+        ...typography.h3,
+        color: colors.secondary.gray_900,
+        marginTop: spacing.sm,
+        textTransform: 'capitalize',
+    },
+    subStatus: {
+        ...typography.body_medium,
+        color: colors.secondary.gray_500,
+        marginBottom: spacing.lg,
+    },
+    section: {
+        marginBottom: spacing.lg,
+    },
+    sectionHeader: {
+        ...typography.h4,
+        marginBottom: spacing.md,
+    },
+    restaurantRow: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        paddingVertical: spacing.md,
+        borderTopWidth: 1,
+        borderTopColor: colors.secondary.gray_100,
+        marginBottom: spacing.md,
+    },
+    restaurantName: {
+        ...typography.body_large,
+        fontWeight: '600',
+    },
+    callRestButton: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 6,
+        padding: spacing.sm,
+        backgroundColor: colors.secondary.gray_100,
+        borderRadius: borderRadius.full,
+    },
+    callRestText: {
+        ...typography.button_small,
+        color: colors.primary.zomato_red,
+    },
+    cancelButton: {
+        alignItems: 'center',
+        paddingVertical: spacing.md,
+    },
+    cancelButtonText: {
+        ...typography.body_medium,
+        color: colors.primary.zomato_red,
+        fontWeight: '600',
     },
     loadingContainer: {
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
-        backgroundColor: '#fff',
     },
     loadingText: {
-        marginTop: 12,
-        fontSize: 14,
-        color: '#666',
+        ...typography.body_medium,
+        marginTop: spacing.md,
+        color: colors.secondary.gray_500,
     },
     errorContainer: {
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
-        backgroundColor: '#fff',
-        padding: 20,
+        padding: spacing.xl,
     },
     errorText: {
-        fontSize: 16,
-        color: '#E23744',
+        ...typography.body_large,
+        color: colors.primary.zomato_red,
         textAlign: 'center',
-        marginBottom: 16,
+        marginBottom: spacing.lg,
     },
     retryButton: {
-        backgroundColor: '#E23744',
-        paddingHorizontal: 24,
-        paddingVertical: 12,
-        borderRadius: 8,
+        backgroundColor: colors.primary.zomato_red,
+        paddingHorizontal: spacing.xl,
+        paddingVertical: spacing.md,
+        borderRadius: borderRadius.md,
     },
     retryButtonText: {
-        fontSize: 14,
-        fontWeight: '600',
-        color: '#fff',
-    },
-    header: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        paddingHorizontal: 16,
-        paddingVertical: 12,
-        backgroundColor: '#fff',
-        elevation: 2,
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 1 },
-        shadowOpacity: 0.1,
-        shadowRadius: 2,
-    },
-    backButton: {
-        padding: 4,
-    },
-    headerCenter: {
-        alignItems: 'center',
-    },
-    headerTitle: {
-        fontSize: 18,
-        fontWeight: '600',
-        color: '#333',
-    },
-    orderNumber: {
-        fontSize: 12,
-        color: '#666',
-        marginTop: 2,
-    },
-    helpButton: {
-        padding: 4,
-    },
-    scrollView: {
-        flex: 1,
-    },
-    scrollContent: {
-        padding: 16,
-    },
-    restaurantCard: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        backgroundColor: '#fff',
-        borderRadius: 12,
-        padding: 12,
-        marginBottom: 12,
-    },
-    restaurantImage: {
-        width: 50,
-        height: 50,
-        borderRadius: 8,
-        marginRight: 12,
-    },
-    restaurantInfo: {
-        flex: 1,
-    },
-    restaurantName: {
-        fontSize: 15,
-        fontWeight: '600',
-        color: '#333',
-    },
-    restaurantAddress: {
-        fontSize: 12,
-        color: '#666',
-        marginTop: 2,
-    },
-    callRestaurantButton: {
-        width: 40,
-        height: 40,
-        borderRadius: 20,
-        backgroundColor: '#FFEBEE',
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
-    etaBanner: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        backgroundColor: '#E23744',
-        borderRadius: 12,
-        padding: 16,
-        marginBottom: 16,
-    },
-    etaLeft: {},
-    etaLabel: {
-        fontSize: 12,
-        color: 'rgba(255,255,255,0.8)',
-    },
-    etaTime: {
-        fontSize: 24,
-        fontWeight: '700',
-        color: '#fff',
-        marginTop: 2,
-    },
-    etaRight: {},
-    pulseDot: {
-        width: 12,
-        height: 12,
-        borderRadius: 6,
-        backgroundColor: '#4CAF50',
-    },
-    actionsContainer: {
-        marginBottom: 16,
-    },
-    cancelButton: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'center',
-        backgroundColor: '#fff',
-        borderWidth: 1,
-        borderColor: '#E23744',
-        borderRadius: 10,
-        paddingVertical: 14,
-    },
-    cancelButtonText: {
-        fontSize: 14,
-        fontWeight: '600',
-        color: '#E23744',
-        marginLeft: 8,
-    },
-    billCard: {
-        backgroundColor: '#fff',
-        borderRadius: 12,
-        padding: 16,
-    },
-    billTitle: {
-        fontSize: 16,
-        fontWeight: '600',
-        color: '#333',
-        marginBottom: 12,
-    },
-    billRow: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        marginBottom: 8,
-    },
-    billLabel: {
-        fontSize: 14,
-        color: '#666',
-    },
-    billValue: {
-        fontSize: 14,
-        color: '#333',
-    },
-    discountValue: {
-        color: '#4CAF50',
-    },
-    billDivider: {
-        height: 1,
-        backgroundColor: '#E0E0E0',
-        marginVertical: 8,
-    },
-    grandTotalLabel: {
-        fontSize: 15,
-        fontWeight: '600',
-        color: '#333',
-    },
-    grandTotalValue: {
-        fontSize: 16,
-        fontWeight: '700',
-        color: '#333',
+        ...typography.button_medium,
+        color: colors.secondary.white,
     },
 });
 
