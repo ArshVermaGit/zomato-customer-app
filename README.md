@@ -1,124 +1,74 @@
-# Zomato - Customer App
+# 📱 Zomato Customer App
 
-![Zomato](https://b.zmtcdn.com/web_assets/b40b97e677bc7b2ca77c58c61db266fe1603954218.png)
+The primary interface for users to discover restaurants, browse menus, and place food delivery orders. Built with React Native (Expo) for a premium, cross-platform experience.
 
-## Overview
+## ✨ Features
 
-**Zomato Customer App** is a premium food delivery experience built with **React Native** and the **Zomato Ecosystem Monorepo**. It features a stunning UI, seamless animations with Reanimated, and robust state management via Redux Toolkit.
-
-**Developed by:** Arsh
-
----
-
-## 🚀 Features
-
-*   **Premium UI/UX**: Glassmorphism, highly interactive animations, and a sleek dark mode.
-*   **Smart Search**: Instant search for restaurants and dishes.
-*   **Live Order Tracking**: Real-time updates on your food delivery.
-*   **Optimized Performance**:
-    *   **Lazy Loading**: Faster startup times.
-    *   **FastImage**: Caching and priority loading for images.
-    *   **FlashList/FlatList Optimization**: 60fps scrolling.
-*   **Robust Architecture**:
-    *   **Redux Toolkit**: Centralized state management.
-    *   **React Navigation v7**: Native stack navigation.
-    *   **TypeScript**: Type-safe development.
-
----
+- **Restaurant Discovery**: Advanced filtering by cuisine, rating, delivery time, and cost.
+- **Visual Menus**: High-quality images for menu items with easy customization.
+- **Live Order Tracking**: Real-time map view of the delivery partner's location.
+- **Secure Payments**: Support for Credit/Debit cards, UPI, and Digital Wallets.
+- **User Profiles**: Manage saved addresses, favorites, and order history.
+- **Rating & Reviews**: Share experiences and view community feedback.
 
 ## 🛠️ Tech Stack
 
-*   **Framework**: React Native 0.83
-*   **Language**: TypeScript
-*   **State Management**: Redux Toolkit + Redux Persist
-*   **Navigation**: React Navigation 7
-*   **Styling**: StyleSheet + Reanimated
-*   **Network**: Axios + React Query (planned)
-*   **Testing**: Jest + React Native Testing Library
+- **Framework**: React Native (Expo SDK 50+)
+- **Navigation**: React Navigation v6
+- **State Management**: Redux Toolkit / Context API
+- **Styling**: NativeWind (TailwindCSS for React Native)
+- **Maps**: react-native-maps
+- **API Client**: Axios
 
----
-
-## 🏁 Getting Started
+## 🚀 Getting Started
 
 ### Prerequisites
-*   Node.js >= 18
-*   Ruby (for iOS CocoaPods)
-*   JDK 17 (for Android)
-*   Watchman (optional, for macOS)
+
+- Node.js 18+
+- Watchman
+- iOS Simulator (Mac) or Android Emulator
 
 ### Installation
 
-1.  **Clone the repository:**
+1.  **Navigate to the app directory**
     ```bash
-    git clone https://github.com/arshverma/Zomato.git
-    cd Zomato/zomato-ecosystem/apps/zomato-customer-app
+    cd apps/zomato-customer-app
     ```
 
-2.  **Install dependencies:**
+2.  **Install dependencies**
     ```bash
     npm install
-    # OR
-    yarn install
     ```
 
-3.  **Install iOS Pods (Mac only):**
+3.  **Start the development server**
     ```bash
-    cd ios && pod install && cd ..
+    npx expo start
     ```
 
----
+4.  **Run on Device/Simulator**
+    - Press `i` for iOS Simulator.
+    - Press `a` for Android Emulator.
+    - Scan the QR code with the Expo Go app on your physical device.
 
-## 🏃‍♂️ Running the App
+## 📸 Screenshots
 
-### 1. Start the Metro Server
-This bundles your JavaScript code.
-```bash
-npm start
-```
+| Home Screen | Restaurant Page | Cart | Tracking |
+|-------------|-----------------|------|----------|
+| ![Home](https://placeholder.com/home.png) | ![Restaurant](https://placeholder.com/rest.png) | ![Cart](https://placeholder.com/cart.png) | ![Track](https://placeholder.com/track.png) |
 
-### 2. Run on Emulator/Device
+*(Note: Replace placeholders with actual screenshots)*
 
-**Android:**
-```bash
-npm run android
-```
+## 👨‍💻 Author
 
-**iOS:**
-```bash
-npm run ios
-```
+**Arsh Verma** - *Full Stack Developer*
 
----
+Connect with me:
 
-## 🧪 Testing
-
-Run the comprehensive test suite (Unit & Component tests):
-```bash
-npm test
-```
+- 🐙 **GitHub**: [ArshVermaGit](https://github.com/ArshVermaGit)
+- 💼 **LinkedIn**: [arshvermadev](https://www.linkedin.com/in/arshvermadev/)
+- ✖️ **X (Twitter)**: [@TheArshVerma](https://x.com/TheArshVerma)
+- 📧 **Email**: [Arshvermadev@gmail.com](mailto:Arshvermadev@gmail.com)
 
 ---
 
-## 📂 Project Structure
-
-```
-src/
-├── components/   # Reusable UI components (RestaurantCard, Buttons, etc.)
-├── navigation/   # Stack and Tab navigators
-├── screens/      # Application screens (Home, Dining, Profile, etc.)
-├── services/     # API clients and services
-├── store/        # Redux slices and store configuration
-├── types/        # TypeScript type definitions
-└── utils/        # Helper functions and constants
-```
-
----
-
-## 🎨 Branding
-
-*   **App Name**: Zomato By Arsh
-*   **Theme**: Zomato Red & Modern Dark/Light themes.
-
----
-
-Made with ❤️ by Arsh.
+Made with ❤️ by ArshCreates
