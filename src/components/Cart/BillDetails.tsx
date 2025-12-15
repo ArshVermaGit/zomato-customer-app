@@ -1,5 +1,7 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
+import { colors, spacing, typography, borderRadius } from '@zomato/design-tokens';
+import { Info } from 'lucide-react-native';
 
 interface BillDetailsProps {
     bill: {
@@ -25,24 +27,45 @@ const BillDetails = ({ bill }: BillDetailsProps) => {
 
             {bill.discount > 0 && (
                 <View style={styles.row}>
-                    <Text style={[styles.label, { color: 'green' }]}>Item Discount</Text>
-                    <Text style={[styles.value, { color: 'green' }]}>-₹{bill.discount}</Text>
+                    <Text style={[styles.label, { color: '#24963F' }]}>Item Discount</Text>
+                    <Text style={[styles.value, { color: '#24963F' }]}>-₹{bill.discount}</Text>
                 </View>
             )}
 
             <View style={styles.row}>
-                <Text style={styles.topLabel}>Delivery Partner Fee</Text>
-                <Text style={styles.value}>{bill.deliveryFee === 0 ? 'FREE' : `₹${bill.deliveryFee}`}</Text>
+                <View style={styles.labelRow}>
+                    <Text style={styles.dottedLabel}>Delivery Fee</Text>
+                    <Text style={styles.distance}> | 2.5 kms</Text>
+                </View>
+                <View style={styles.valueRow}>
+                    {bill.deliveryFee === 0 ? (
+                        <Text style={[styles.value, { color: '#24963F' }]}>FREE</Text>
+                    ) : (
+                        <Text style={styles.value}>₹{bill.deliveryFee}</Text>
+                    )}
+                    {bill.deliveryFee > 0 && <Text style={styles.strikethrough}>₹40</Text>}
+                </View>
             </View>
-            {bill.deliveryFee === 0 && <Text style={styles.subtext}>Free delivery for orders above ₹500</Text>}
+
+            {bill.deliveryFee === 0 && (
+                <View style={styles.blueInfo}>
+                    <Text style={styles.blueInfoText}>Free delivery on your order!</Text>
+                </View>
+            )}
 
             <View style={styles.row}>
-                <Text style={styles.topLabel}>Platform Fee</Text>
+                <View style={styles.labelRow}>
+                    <Text style={styles.dottedLabel}>Platform Fee</Text>
+                    <Info size={12} color={colors.secondary.gray_500} style={{ marginLeft: 4 }} />
+                </View>
                 <Text style={styles.value}>₹{bill.platformFee}</Text>
             </View>
 
             <View style={styles.row}>
-                <Text style={styles.topLabel}>GST and Restaurant Charges</Text>
+                <View style={styles.labelRow}>
+                    <Text style={styles.dottedLabel}>GST and Restaurant Charges</Text>
+                    <Info size={12} color={colors.secondary.gray_500} style={{ marginLeft: 4 }} />
+                </View>
                 <Text style={styles.value}>₹{bill.tax}</Text>
             </View>
 
@@ -55,7 +78,7 @@ const BillDetails = ({ bill }: BillDetailsProps) => {
 
             <View style={styles.divider} />
 
-            <View style={styles.row}>
+            <View style={styles.totalRow}>
                 <Text style={styles.totalLabel}>To Pay</Text>
                 <Text style={styles.totalValue}>₹{bill.grandTotal}</Text>
             </View>
@@ -65,56 +88,83 @@ const BillDetails = ({ bill }: BillDetailsProps) => {
 
 const styles = StyleSheet.create({
     container: {
-        backgroundColor: '#fff',
-        padding: 15,
-        borderRadius: 12,
-        marginBottom: 20,
+        backgroundColor: colors.secondary.white,
+        padding: spacing.md,
+        borderRadius: borderRadius.xl,
+        marginBottom: spacing.lg,
     },
     title: {
-        fontSize: 18,
-        fontWeight: 'bold',
-        color: '#333',
-        marginBottom: 15,
+        ...typography.h4,
+        color: colors.secondary.gray_900,
+        marginBottom: spacing.md,
     },
     row: {
         flexDirection: 'row',
         justifyContent: 'space-between',
-        marginBottom: 10,
+        marginBottom: spacing.sm,
+        alignItems: 'center',
+    },
+    labelRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
     },
     label: {
-        fontSize: 14,
-        color: '#666',
+        ...typography.body_medium,
+        color: colors.secondary.gray_600,
     },
-    topLabel: {
-        fontSize: 14,
-        color: '#666',
+    dottedLabel: {
+        ...typography.body_medium,
+        color: colors.secondary.gray_600,
         textDecorationLine: 'underline',
         textDecorationStyle: 'dotted',
     },
-    value: {
-        fontSize: 14,
-        color: '#333',
+    distance: {
+        ...typography.caption,
+        color: colors.secondary.gray_500,
     },
-    subtext: {
-        fontSize: 10,
-        color: '#999',
+    value: {
+        ...typography.body_medium,
+        color: colors.secondary.gray_900,
+    },
+    valueRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 6,
+    },
+    strikethrough: {
+        ...typography.caption,
+        color: colors.secondary.gray_400,
+        textDecorationLine: 'line-through',
+    },
+    blueInfo: {
+        backgroundColor: '#E8F3FF',
+        padding: 6,
+        borderRadius: 4,
+        alignSelf: 'flex-start',
         marginBottom: 10,
-        marginTop: -5,
+    },
+    blueInfoText: {
+        ...typography.caption,
+        color: '#256FEF',
+        fontWeight: '600',
     },
     divider: {
         height: 1,
-        backgroundColor: '#eee',
-        marginVertical: 10,
+        backgroundColor: colors.secondary.gray_200,
+        marginVertical: spacing.md,
+    },
+    totalRow: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
     },
     totalLabel: {
-        fontSize: 16,
-        fontWeight: 'bold',
-        color: '#333',
+        ...typography.h3,
+        color: colors.secondary.gray_900,
     },
     totalValue: {
-        fontSize: 16,
-        fontWeight: 'bold',
-        color: '#333',
+        ...typography.h3,
+        color: colors.secondary.gray_900,
     },
 });
 
