@@ -12,6 +12,7 @@ import { ChevronLeft } from 'lucide-react-native';
 
 import { RootState, AppDispatch } from '../../store/store';
 import { updateSettings } from '../../store/slices/authSlice';
+import { colors, spacing, typography } from '@zomato/design-tokens';
 
 const NotificationSettingsScreen = () => {
     const navigation = useNavigation();
@@ -42,7 +43,7 @@ const NotificationSettingsScreen = () => {
         <SafeAreaView style={styles.container} edges={['top']}>
             <View style={styles.header}>
                 <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
-                    <ChevronLeft size={24} color="#333" />
+                    <ChevronLeft size={24} color={colors.secondary.black} />
                 </TouchableOpacity>
                 <Text style={styles.headerTitle}>Notifications</Text>
                 <View style={{ width: 24 }} />
@@ -84,53 +85,50 @@ const NotificationSettingsScreen = () => {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#fff',
+        backgroundColor: colors.secondary.white,
     },
     header: {
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'space-between',
-        padding: 16,
+        padding: spacing.base,
         borderBottomWidth: 1,
-        borderBottomColor: '#F0F0F0',
+        borderBottomColor: colors.secondary.gray_100,
     },
     backButton: {
-        padding: 4,
+        padding: spacing.xs,
     },
     headerTitle: {
-        fontSize: 18,
-        fontWeight: '600',
-        color: '#333',
+        ...typography.h3,
+        color: colors.secondary.gray_900,
     },
     content: {
-        padding: 24,
+        padding: spacing.xl,
     },
     sectionHeader: {
-        fontSize: 14,
-        fontWeight: '700',
-        color: '#999',
-        marginBottom: 16,
-        marginTop: 16,
-        textTransform: 'uppercase',
+        ...typography.overline,
+        color: colors.secondary.gray_500,
+        marginBottom: spacing.base,
+        marginTop: spacing.md,
     },
     row: {
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
-        marginBottom: 24,
+        marginBottom: spacing.lg,
     },
     textContainer: {
         flex: 1,
-        paddingRight: 16,
+        paddingRight: spacing.md,
     },
     label: {
-        fontSize: 16,
-        color: '#333',
-        marginBottom: 4,
+        ...typography.body_large,
+        color: colors.secondary.gray_900,
+        marginBottom: 2,
     },
     description: {
-        fontSize: 13,
-        color: '#666',
+        ...typography.body_small,
+        color: colors.secondary.gray_600,
     },
 });
 
