@@ -1,0 +1,88 @@
+default_platform(:ios)
+
+# Constants
+APP_IDENTIFIER = "com.zomato.customer"
+
+platform :ios do
+  desc "Build and upload to App Store Connect"
+  lane :release do
+    # Increment build number
+    increment_build_number(xcodeproj: "ZomatoCustomerApp.xcodeproj")
+
+    # Build the app
+    build_app(
+      scheme: "ZomatoCustomerApp",
+      export_method: "app-store",
+      output_directory: "./build",
+      output_name: "ZomatoCustomerApp.ipa"
+    )
+
+    # Upload to App Store Connect
+    upload_to_app_store(
+      skip_metadata: false,
+      skip_screenshots: false,
+      skip_binary_upload: false,
+      precheck_include_in_app_purchases: false
+    )
+
+    # Notify on Slack (optional)
+    # slack(message: "iOS Customer App uploaded to App Store Connect!")
+  end
+
+  desc "Build for TestFlight"
+  lane :beta do
+    increment_build_number(xcodeproj: "ZomatoCustomerApp.xcodeproj")
+
+    build_app(
+      scheme: "ZomatoCustomerApp",
+      export_method: "app-store"
+    )
+
+    upload_to_testflight(
+      skip_waiting_for_build_processing: true
+    )
+  end
+
+  desc "Take screenshots"
+  lane :screenshots do
+    capture_screenshots(scheme: "ZomatoCustomerAppUITests")
+  end
+end
+
+platform :android do
+  desc "Build and upload to Play Store"
+  lane :release do
+    # Build AAB
+    gradle(
+      task: "bundle",
+      build_type: "Release",
+      project_dir: "./android"
+    )
+
+    # Upload to Play Store
+    upload_to_play_store(
+      track: "production",
+      aab: "./android/app/build/outputs/bundle/release/app-release.aab",
+      skip_upload_metadata: false,
+      skip_upload_images: false,
+      skip_upload_screenshots: false
+    )
+
+    # Notify on Slack (optional)
+    # slack(message: "Android Customer App uploaded to Play Store!")
+  end
+
+  desc "Build for internal testing"
+  lane :beta do
+    gradle(
+      task: "bundle",
+      build_type: "Release",
+      project_dir: "./android"
+    )
+
+    upload_to_play_store(
+      track: "internal",
+      aab: "./android/app/build/outputs/bundle/release/app-release.aab"
+    )
+  end
+end
