@@ -1,6 +1,18 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { View, Text, StyleSheet, Modal, Image, TouchableOpacity, ScrollView, TextInput } from 'react-native';
-import { X, Minus, Plus, Star } from 'lucide-react-native';
+import { View, Text, StyleSheet, Modal, Image, TouchableOpacity, ScrollView, TextInput, Pressable } from 'react-native';
+import { X, Minus, Plus, Star, ChevronDown, Check } from 'lucide-react-native';
+import Animated, {
+    useSharedValue,
+    useAnimatedStyle,
+    withSpring,
+    withSequence,
+    withTiming,
+    interpolateColor
+} from 'react-native-reanimated';
+import { colors, spacing, typography, borderRadius, shadows } from '@zomato/design-tokens';
+
+// Animated Components
+const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
 
 interface DishDetailModalProps {
     visible: boolean;
@@ -13,6 +25,10 @@ const DishDetailModal = ({ visible, dish, onClose, onAddToCart }: DishDetailModa
     const [quantity, setQuantity] = useState(1);
     const [selections, setSelections] = useState<any>({});
     const [specialRequest, setSpecialRequest] = useState('');
+
+    // Animation Values
+    const scaleQty = useSharedValue(1);
+    const scaleAddBtn = useSharedValue(1);
 
     useEffect(() => {
         if (visible) {
@@ -80,17 +96,45 @@ const DishDetailModal = ({ visible, dish, onClose, onAddToCart }: DishDetailModa
         });
     }, [dish, selections]);
 
+    const handleIncrement = () => {
+        setQuantity(q => q + 1);
+        scaleQty.value = withSequence(withSpring(1.2), withSpring(1));
+    };
+
+    const handleDecrement = () => {
+        if (quantity > 1) {
+            setQuantity(q => q - 1);
+            scaleQty.value = withSequence(withSpring(0.9), withSpring(1));
+        }
+    };
+
     const handleSubmit = () => {
         if (!isValid) return;
-        onAddToCart({
-            ...dish,
-            quantity,
-            selections,
-            specialRequest,
-            finalPrice: calculateTotal
-        });
-        onClose();
+
+        // Button Animation
+        scaleAddBtn.value = withSequence(withSpring(0.95), withSpring(1));
+
+        // Delay close slightly to show animation
+        setTimeout(() => {
+            onAddToCart({
+                ...dish,
+                quantity,
+                selections,
+                specialRequest,
+                finalPrice: calculateTotal
+            });
+            onClose();
+        }, 150);
     };
+
+    // Animated Styles
+    const qtyStyle = useAnimatedStyle(() => ({
+        transform: [{ scale: scaleQty.value }]
+    }));
+
+    const btnStyle = useAnimatedStyle(() => ({
+        transform: [{ scale: scaleAddBtn.value }]
+    }));
 
     if (!dish) return null;
 
@@ -100,27 +144,30 @@ const DishDetailModal = ({ visible, dish, onClose, onAddToCart }: DishDetailModa
                 <View style={styles.container}>
                     {/* Close Button */}
                     <TouchableOpacity style={styles.closeButton} onPress={onClose}>
-                        <X color="#333" size={24} />
+                        <X color={colors.secondary.gray_900} size={20} />
                     </TouchableOpacity>
 
                     <ScrollView contentContainerStyle={styles.scrollContent}>
-                        {/* Header */}
+                        {/* Header Image (Optional) */}
                         {dish.image && (
                             <Image source={{ uri: dish.image }} style={styles.image} resizeMode="cover" />
                         )}
 
                         <View style={styles.headerInfo}>
-                            <View style={styles.vegIconContainer}>
-                                <View style={[styles.vegIconOuter, { borderColor: dish.isVeg ? 'green' : 'red' }]}>
-                                    <View style={[styles.vegIconInner, { backgroundColor: dish.isVeg ? 'green' : 'red' }]} />
-                                </View>
-                                {dish.bestseller && (
-                                    <View style={styles.bestsellerBadge}>
-                                        <Star size={12} color="#E2A03F" fill="#E2A03F" />
-                                        <Text style={styles.bestsellerText}>Bestseller</Text>
+                            <View style={styles.rowBetween}>
+                                <View style={styles.vegIconContainer}>
+                                    <View style={[styles.vegIconOuter, { borderColor: dish.isVeg ? '#24963F' : '#E23744' }]}>
+                                        <View style={[styles.vegIconInner, { backgroundColor: dish.isVeg ? '#24963F' : '#E23744' }]} />
                                     </View>
-                                )}
+                                    {dish.bestseller && (
+                                        <View style={styles.bestsellerBadge}>
+                                            <Star size={10} color="#E2A03F" fill="#E2A03F" />
+                                            <Text style={styles.bestsellerText}>Bestseller</Text>
+                                        </View>
+                                    )}
+                                </View>
                             </View>
+
                             <Text style={styles.title}>{dish.name}</Text>
                             <Text style={styles.price}>₹{dish.price}</Text>
                             <Text style={styles.description}>{dish.description}</Text>
@@ -131,7 +178,7 @@ const DishDetailModal = ({ visible, dish, onClose, onAddToCart }: DishDetailModa
                             <View key={group.id} style={styles.groupContainer}>
                                 <View style={styles.groupHeader}>
                                     <Text style={styles.groupTitle}>{group.name}</Text>
-                                    {group.required && <Text style={styles.requiredBadge}>Required</Text>}
+                                    {group.required && <View style={styles.requiredChip}><Text style={styles.requiredText}>Required</Text></View>}
                                 </View>
 
                                 {group.options.map((option: any) => {
@@ -142,21 +189,26 @@ const DishDetailModal = ({ visible, dish, onClose, onAddToCart }: DishDetailModa
                                     return (
                                         <TouchableOpacity
                                             key={option.id}
-                                            style={styles.optionRow}
+                                            style={[styles.optionRow, isSelected && styles.optionRowSelected]}
                                             onPress={() => handleOptionSelect(group.id, option.id, group.type)}
+                                            activeOpacity={0.7}
                                         >
                                             <View style={styles.optionInfo}>
+                                                {/* Visual Selection Indicator */}
                                                 <View style={[
-                                                    styles.radioOuter,
-                                                    group.type === 'checkbox' && { borderRadius: 4 },
-                                                    isSelected && { borderColor: '#E23744' }
+                                                    styles.selectorOuter,
+                                                    group.type === 'checkbox' && styles.checkboxOuter,
+                                                    isSelected && styles.selectorActive
                                                 ]}>
-                                                    {isSelected && <View style={[
-                                                        styles.radioInner,
-                                                        group.type === 'checkbox' && { borderRadius: 2, width: 10, height: 10 }
-                                                    ]} />}
+                                                    {isSelected && (
+                                                        group.type === 'radio' ? (
+                                                            <View style={styles.radioInner} />
+                                                        ) : (
+                                                            <Check size={12} color="white" />
+                                                        )
+                                                    )}
                                                 </View>
-                                                <Text style={styles.optionName}>{option.name}</Text>
+                                                <Text style={[styles.optionName, isSelected && styles.optionNameActive]}>{option.name}</Text>
                                             </View>
                                             <Text style={styles.optionPrice}>
                                                 {option.price > 0 ? `+ ₹${option.price}` : 'Free'}
@@ -172,7 +224,8 @@ const DishDetailModal = ({ visible, dish, onClose, onAddToCart }: DishDetailModa
                             <Text style={styles.groupTitle}>Special Instructions</Text>
                             <TextInput
                                 style={styles.input}
-                                placeholder="Any specific requests? (optional)"
+                                placeholder="E.g. Less spicy, keep sauce separate..."
+                                placeholderTextColor={colors.secondary.gray_500}
                                 maxLength={200}
                                 value={specialRequest}
                                 onChangeText={setSpecialRequest}
@@ -187,22 +240,22 @@ const DishDetailModal = ({ visible, dish, onClose, onAddToCart }: DishDetailModa
                     {/* Footer */}
                     <View style={styles.footer}>
                         <View style={styles.quantityContainer}>
-                            <TouchableOpacity onPress={() => quantity > 1 && setQuantity(q => q - 1)} disabled={quantity <= 1}>
-                                <Minus color={quantity > 1 ? "#E23744" : "#ccc"} size={20} />
+                            <TouchableOpacity onPress={handleDecrement} disabled={quantity <= 1} style={styles.qtyBtn}>
+                                <Minus color={quantity > 1 ? colors.primary.zomato_red : colors.secondary.gray_400} size={20} />
                             </TouchableOpacity>
-                            <Text style={styles.quantityText}>{quantity}</Text>
-                            <TouchableOpacity onPress={() => setQuantity(q => q + 1)}>
-                                <Plus color="#E23744" size={20} />
+                            <Animated.Text style={[styles.quantityText, qtyStyle]}>{quantity}</Animated.Text>
+                            <TouchableOpacity onPress={handleIncrement} style={styles.qtyBtn}>
+                                <Plus color={colors.primary.zomato_red} size={20} />
                             </TouchableOpacity>
                         </View>
 
-                        <TouchableOpacity
-                            style={[styles.addButton, !isValid && styles.disabledButton]}
+                        <AnimatedPressable
+                            style={[styles.addButton, !isValid && styles.disabledButton, btnStyle]}
                             onPress={handleSubmit}
                             disabled={!isValid}
                         >
                             <Text style={styles.addButtonText}>Add item ₹{calculateTotal}</Text>
-                        </TouchableOpacity>
+                        </AnimatedPressable>
                     </View>
                 </View>
             </View>
@@ -213,42 +266,47 @@ const DishDetailModal = ({ visible, dish, onClose, onAddToCart }: DishDetailModa
 const styles = StyleSheet.create({
     overlay: {
         flex: 1,
-        backgroundColor: 'rgba(0,0,0,0.5)',
+        backgroundColor: 'rgba(0,0,0,0.6)', // Darker dim
         justifyContent: 'flex-end',
     },
     container: {
-        backgroundColor: '#fff',
-        height: '90%',
-        borderTopLeftRadius: 20,
-        borderTopRightRadius: 20,
+        backgroundColor: colors.secondary.white,
+        height: '85%', // Bottom sheet height
+        borderTopLeftRadius: borderRadius['2xl'],
+        borderTopRightRadius: borderRadius['2xl'],
         overflow: 'hidden',
+        ...shadows.xl,
     },
     closeButton: {
         position: 'absolute',
-        top: 20,
-        right: 20,
+        top: 16,
+        right: 16,
         zIndex: 10,
-        backgroundColor: '#fff',
-        borderRadius: 20,
-        padding: 5,
-        elevation: 5,
+        backgroundColor: colors.secondary.white,
+        borderRadius: borderRadius.full,
+        padding: 8,
+        ...shadows.sm,
     },
     scrollContent: {
         paddingBottom: 20,
     },
     image: {
         width: '100%',
-        height: 250,
+        height: 200,
     },
     headerInfo: {
-        padding: 20,
+        padding: spacing.lg,
         borderBottomWidth: 1,
-        borderBottomColor: '#f0f0f0',
+        borderBottomColor: colors.secondary.gray_100,
+    },
+    rowBetween: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
     },
     vegIconContainer: {
         flexDirection: 'row',
         alignItems: 'center',
-        marginBottom: 10,
+        marginBottom: spacing.xs,
     },
     vegIconOuter: {
         width: 16,
@@ -256,12 +314,13 @@ const styles = StyleSheet.create({
         borderWidth: 1,
         justifyContent: 'center',
         alignItems: 'center',
-        marginRight: 10,
+        marginRight: 8,
+        borderRadius: 2, // Soft square
     },
     vegIconInner: {
         width: 8,
         height: 8,
-        borderRadius: 4,
+        borderRadius: 4, // Circle
     },
     bestsellerBadge: {
         flexDirection: 'row',
@@ -278,133 +337,158 @@ const styles = StyleSheet.create({
         fontWeight: 'bold',
     },
     title: {
-        fontSize: 22,
-        fontWeight: 'bold',
-        color: '#333',
-        marginBottom: 5,
+        ...typography.h3,
+        color: colors.secondary.gray_900,
+        marginBottom: 4,
     },
     price: {
-        fontSize: 18,
-        fontWeight: '600',
-        color: '#333',
-        marginBottom: 10,
+        ...typography.h4,
+        color: colors.secondary.gray_900,
+        marginBottom: 8,
     },
     description: {
-        fontSize: 14,
-        color: '#666',
+        ...typography.body_medium,
+        color: colors.secondary.gray_600,
         lineHeight: 20,
     },
     groupContainer: {
-        padding: 20,
+        padding: spacing.lg,
         borderBottomWidth: 1,
-        borderBottomColor: '#f0f0f0',
+        borderBottomColor: colors.secondary.gray_100,
     },
     groupHeader: {
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
-        marginBottom: 15,
+        marginBottom: spacing.md,
     },
     groupTitle: {
-        fontSize: 18,
-        fontWeight: 'bold',
-        color: '#333',
+        ...typography.h4,
+        color: colors.secondary.gray_900,
     },
-    requiredBadge: {
-        fontSize: 12,
-        color: '#fff',
-        backgroundColor: '#666',
+    requiredChip: {
+        backgroundColor: colors.secondary.gray_100,
         paddingHorizontal: 6,
         paddingVertical: 2,
         borderRadius: 4,
+    },
+    requiredText: {
+        ...typography.caption,
+        color: colors.secondary.gray_600,
+        fontWeight: '600',
     },
     optionRow: {
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
-        marginBottom: 15,
+        paddingVertical: 12,
+    },
+    optionRowSelected: {
+        // Optional highlight
     },
     optionInfo: {
         flexDirection: 'row',
         alignItems: 'center',
     },
-    radioOuter: {
+    selectorOuter: {
         width: 20,
         height: 20,
         borderRadius: 10,
         borderWidth: 2,
-        borderColor: '#ccc',
+        borderColor: colors.secondary.gray_400,
         justifyContent: 'center',
         alignItems: 'center',
-        marginRight: 15,
+        marginRight: 12,
+    },
+    checkboxOuter: {
+        borderRadius: 4,
+    },
+    selectorActive: {
+        borderColor: colors.primary.zomato_red,
+        backgroundColor: colors.primary.zomato_red, // Fill for checkbox, border for radio?
+        // Actually for radio we want border red, inner red.
+        // For checkbox we want fill red.
+        // Let's simplify:
+        backgroundColor: 'transparent',
     },
     radioInner: {
         width: 10,
         height: 10,
         borderRadius: 5,
-        backgroundColor: '#E23744',
+        backgroundColor: colors.primary.zomato_red,
     },
+    // Styles Fix for Selector
     optionName: {
-        fontSize: 16,
-        color: '#333',
+        ...typography.body_medium,
+        color: colors.secondary.gray_900,
+    },
+    optionNameActive: {
+        fontWeight: '600',
     },
     optionPrice: {
-        fontSize: 14,
-        color: '#666',
+        ...typography.body_medium,
+        color: colors.secondary.gray_600,
     },
     input: {
         borderWidth: 1,
-        borderColor: '#ddd',
-        borderRadius: 10,
-        padding: 10,
-        fontSize: 14,
-        color: '#333',
+        borderColor: colors.secondary.gray_300,
+        borderRadius: borderRadius.lg,
+        padding: 12,
+        ...typography.body_medium,
+        color: colors.secondary.gray_900,
         minHeight: 80,
         textAlignVertical: 'top',
+        backgroundColor: colors.secondary.gray_50,
     },
     footer: {
         position: 'absolute',
         bottom: 0,
         left: 0,
         right: 0,
-        backgroundColor: '#fff',
-        padding: 20,
+        backgroundColor: colors.secondary.white,
+        padding: spacing.lg,
         flexDirection: 'row',
         alignItems: 'center',
         borderTopWidth: 1,
-        borderTopColor: '#eee',
-        elevation: 10,
+        borderTopColor: colors.secondary.gray_100,
+        ...shadows.lg, // lift it up
     },
     quantityContainer: {
         flexDirection: 'row',
         alignItems: 'center',
         borderWidth: 1,
-        borderColor: '#E23744',
-        borderRadius: 8,
-        paddingHorizontal: 10,
-        paddingVertical: 5,
-        marginRight: 15,
+        borderColor: colors.primary.zomato_red_light, // Softer border
+        borderRadius: borderRadius.lg,
+        paddingHorizontal: 4,
+        paddingVertical: 4,
+        marginRight: spacing.lg,
+        backgroundColor: colors.secondary.gray_50,
+    },
+    qtyBtn: {
+        padding: 8,
     },
     quantityText: {
-        fontSize: 18,
-        fontWeight: 'bold',
-        color: '#333',
-        marginHorizontal: 15,
+        ...typography.h4,
+        color: colors.secondary.gray_900,
+        marginHorizontal: 12,
+        minWidth: 20,
+        textAlign: 'center',
     },
     addButton: {
         flex: 1,
-        backgroundColor: '#E23744',
-        borderRadius: 8,
-        paddingVertical: 12,
+        backgroundColor: colors.primary.zomato_red,
+        borderRadius: borderRadius.lg,
+        paddingVertical: 14,
         alignItems: 'center',
+        ...shadows.md,
     },
     disabledButton: {
-        backgroundColor: '#ccc',
+        backgroundColor: colors.secondary.gray_400,
+        elevation: 0,
     },
     addButtonText: {
-        color: '#fff',
-        fontWeight: 'bold',
-        fontSize: 16,
+        ...typography.h4,
+        color: colors.secondary.white,
     },
 });
 
