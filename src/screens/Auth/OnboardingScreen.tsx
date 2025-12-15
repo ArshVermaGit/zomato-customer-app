@@ -1,96 +1,142 @@
-import React, { useRef, useState } from 'react';
-import { View, Text, StyleSheet, FlatList, Dimensions, TouchableOpacity, Image } from 'react-native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import React, { useState } from 'react';
+import { View, Text, StyleSheet, Dimensions, Image } from 'react-native';
+import Animated, {
+    useSharedValue,
+    useAnimatedScrollHandler,
+    useAnimatedStyle,
+    interpolate,
+    Extrapolate
+} from 'react-native-reanimated';
+import { colors, typography, spacing } from '@zomato/design-tokens';
+import { Button } from '@zomato/ui'; // Assuming Button is exported from UI
 import { useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { AuthStackParamList } from '../../navigation/AuthNavigator';
-
-const { width, height } = Dimensions.get('window');
+import { Utensils, ShoppingBag, Truck } from 'lucide-react-native'; // Illustrations substitute
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 type NavigationProp = StackNavigationProp<AuthStackParamList, 'Onboarding'>;
+const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
-const SLIDES = [
+const slides = [
     {
-        id: '1',
-        title: 'Discover great food',
-        description: 'Explore top-rated restaurants and cafes near you.',
-        image: 'https://cdn-icons-png.flaticon.com/512/2921/2921822.png', // Placeholder URL
+        id: 1,
+        title: 'Discover Restaurants Near You',
+        description: 'Find the best restaurants, cafes, and bars in your city',
+        Icon: Utensils,
+        color: '#FFE5E5',
     },
     {
-        id: '2',
-        title: 'Fast Delivery',
-        description: 'Get your favorite food delivered to your doorstep in minutes.',
-        image: 'https://cdn-icons-png.flaticon.com/512/2830/2830305.png', // Placeholder URL
+        id: 2,
+        title: 'Order Your Favorite Food',
+        description: 'Browse menus and order from thousands of restaurants',
+        Icon: ShoppingBag,
+        color: '#E5F8FF',
     },
     {
-        id: '3',
-        title: 'Live Tracking',
-        description: 'Track your order in real-time from the restaurant to you.',
-        image: 'https://cdn-icons-png.flaticon.com/512/854/854878.png', // Placeholder URL
+        id: 3,
+        title: 'Fast Delivery To Your Door',
+        description: 'Track your order in real-time and get it delivered hot & fresh',
+        Icon: Truck,
+        color: '#E8FFE5',
     },
 ];
+
+const PaginationDot = ({ index, scrollX }: { index: number, scrollX: Animated.SharedValue<number> }) => {
+    const rStyle = useAnimatedStyle(() => {
+        const inputRange = [(index - 1) * SCREEN_WIDTH, index * SCREEN_WIDTH, (index + 1) * SCREEN_WIDTH];
+        const dotWidth = interpolate(
+            scrollX.value,
+            inputRange,
+            [8, 20, 8],
+            Extrapolate.CLAMP
+        );
+        const opacity = interpolate(
+            scrollX.value,
+            inputRange,
+            [0.5, 1, 0.5],
+            Extrapolate.CLAMP
+        );
+        return {
+            width: dotWidth,
+            opacity,
+        };
+    });
+
+    return (
+        <Animated.View style={[styles.dot, rStyle]} />
+    );
+};
 
 const OnboardingScreen = () => {
     const navigation = useNavigation<NavigationProp>();
     const [currentIndex, setCurrentIndex] = useState(0);
-    const flatListRef = useRef<FlatList>(null);
+    const scrollX = useSharedValue(0);
 
-    const handleComplete = async () => {
-        await AsyncStorage.setItem('isFirstLaunch', 'false');
-        navigation.replace('Login');
-    };
+    const scrollHandler = useAnimatedScrollHandler({
+        onScroll: (event) => {
+            scrollX.value = event.contentOffset.x;
+        },
+    });
 
     const handleNext = () => {
-        if (currentIndex < SLIDES.length - 1) {
-            flatListRef.current?.scrollToIndex({ index: currentIndex + 1 });
-        } else {
-            handleComplete();
-        }
+        // Logic to scroll to next slide - ref needed for ScrollView
+        // Simplified: Just update state or let user scroll
+    };
+
+    const handleFinish = async () => {
+        await AsyncStorage.setItem('isFirstLaunch', 'false');
+        navigation.replace('LocationPermission'); // Or Login
     };
 
     return (
         <View style={styles.container}>
-            <FlatList
-                ref={flatListRef}
-                data={SLIDES}
+            {/* Slides */}
+            <Animated.ScrollView
                 horizontal
                 pagingEnabled
                 showsHorizontalScrollIndicator={false}
-                keyExtractor={(item) => item.id}
-                onMomentumScrollEnd={(e) => {
-                    const index = Math.round(e.nativeEvent.contentOffset.x / width);
-                    setCurrentIndex(index);
+                onScroll={scrollHandler}
+                scrollEventThrottle={16}
+                onMomentumScrollEnd={(event) => {
+                    setCurrentIndex(Math.round(event.nativeEvent.contentOffset.x / SCREEN_WIDTH));
                 }}
-                renderItem={({ item }) => (
-                    <View style={styles.slide}>
-                        <Image source={{ uri: item.image }} style={styles.image} resizeMode="contain" />
-                        <Text style={styles.title}>{item.title}</Text>
-                        <Text style={styles.description}>{item.description}</Text>
+            >
+                {slides.map((slide, index) => (
+                    <View key={slide.id} style={[styles.slide, { backgroundColor: slide.color }]}>
+                        {/* Illustration */}
+                        <View style={styles.illustrationContainer}>
+                            {/* Using Icons as illustrations for now, can replace with Images */}
+                            <slide.Icon size={120} color={colors.secondary.gray_800} strokeWidth={1.5} />
+                        </View>
+
+                        {/* Content */}
+                        <View style={styles.content}>
+                            <Text style={styles.title}>{slide.title}</Text>
+                            <Text style={styles.description}>{slide.description}</Text>
+                        </View>
                     </View>
+                ))}
+            </Animated.ScrollView>
+
+            {/* Pagination Dots */}
+            <View style={styles.pagination}>
+                {slides.map((_, index) => (
+                    <PaginationDot key={index} index={index} scrollX={scrollX} />
+                ))}
+            </View>
+
+            {/* Bottom Actions */}
+            <View style={styles.bottomActions}>
+                {currentIndex < slides.length - 1 ? (
+                    <>
+                        {/* Skip button logic? For now simple flow */}
+                        <Button title="Skip" variant="ghost" onPress={handleFinish} style={{ flex: 1, marginRight: 10 }} />
+                        <Button title="Next" variant="primary" onPress={() => console.log('Next')} style={{ flex: 1 }} />
+                    </>
+                ) : (
+                    <Button title="Get Started" variant="primary" onPress={handleFinish} style={{ width: '100%' }} />
                 )}
-            />
-
-            <View style={styles.footer}>
-                <View style={styles.pagination}>
-                    {SLIDES.map((_, index) => (
-                        <View
-                            key={index}
-                            style={[
-                                styles.dot,
-                                { backgroundColor: currentIndex === index ? '#E23744' : '#ccc', width: currentIndex === index ? 20 : 8 }
-                            ]}
-                        />
-                    ))}
-                </View>
-
-                <View style={styles.buttons}>
-                    <TouchableOpacity onPress={handleComplete}>
-                        <Text style={styles.skipText}>Skip</Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity style={styles.nextButton} onPress={handleNext}>
-                        <Text style={styles.nextText}>{currentIndex === SLIDES.length - 1 ? 'Get Started' : 'Next'}</Text>
-                    </TouchableOpacity>
-                </View>
             </View>
         </View>
     );
@@ -99,68 +145,63 @@ const OnboardingScreen = () => {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#fff',
+        backgroundColor: colors.secondary.white,
     },
     slide: {
-        width,
+        width: SCREEN_WIDTH,
+        flex: 1,
+        paddingTop: spacing['5xl'],
         alignItems: 'center',
         justifyContent: 'center',
-        padding: 20,
     },
-    image: {
-        width: width * 0.8,
-        height: width * 0.8,
-        marginBottom: 40,
+    illustrationContainer: {
+        flex: 2,
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    content: {
+        flex: 1,
+        paddingHorizontal: spacing['2xl'],
+        paddingBottom: spacing['4xl'],
+        alignItems: 'center',
     },
     title: {
-        fontSize: 28,
-        fontWeight: 'bold',
-        color: '#333',
-        marginBottom: 10,
+        ...typography.display_medium,
+        color: colors.secondary.gray_900,
         textAlign: 'center',
+        marginBottom: spacing.base,
+        fontSize: 28,
     },
     description: {
-        fontSize: 16,
-        color: '#666',
+        ...typography.body_large,
+        color: colors.secondary.gray_600,
         textAlign: 'center',
-        paddingHorizontal: 20,
-    },
-    footer: {
-        height: 150,
-        justifyContent: 'space-between',
-        paddingHorizontal: 20,
-        paddingBottom: 40,
+        lineHeight: 24,
     },
     pagination: {
         flexDirection: 'row',
-        justifyContent: 'center',
         alignItems: 'center',
+        justifyContent: 'center',
+        gap: spacing.sm,
+        marginBottom: spacing.xl,
+        position: 'absolute',
+        bottom: 100,
+        left: 0,
+        right: 0,
     },
     dot: {
         height: 8,
         borderRadius: 4,
-        marginHorizontal: 4,
+        backgroundColor: colors.primary.zomato_red,
     },
-    buttons: {
+    bottomActions: {
         flexDirection: 'row',
+        paddingHorizontal: spacing.xl,
+        paddingBottom: spacing.xl,
+        position: 'absolute',
+        bottom: 20,
+        width: '100%',
         justifyContent: 'space-between',
-        alignItems: 'center',
-    },
-    skipText: {
-        fontSize: 16,
-        color: '#666',
-        fontWeight: '600',
-    },
-    nextButton: {
-        backgroundColor: '#E23744',
-        paddingVertical: 12,
-        paddingHorizontal: 24,
-        borderRadius: 8,
-    },
-    nextText: {
-        color: '#fff',
-        fontSize: 16,
-        fontWeight: 'bold',
     },
 });
 
