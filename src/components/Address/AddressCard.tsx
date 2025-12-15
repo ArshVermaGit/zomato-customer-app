@@ -7,6 +7,7 @@ import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { Home, Briefcase, MapPin, Edit2, Trash2, Check } from 'lucide-react-native';
 import type { Address, AddressLabel } from '../../types/address.types';
+import { colors, spacing, typography, borderRadius, shadows } from '@zomato/design-tokens';
 
 interface AddressCardProps {
     address: Address;
@@ -20,11 +21,11 @@ interface AddressCardProps {
 const getLabelIcon = (label: AddressLabel) => {
     switch (label) {
         case 'home':
-            return <Home size={20} color="#E23744" />;
+            return <Home size={20} color={colors.primary.zomato_red} />;
         case 'work':
-            return <Briefcase size={20} color="#E23744" />;
+            return <Briefcase size={20} color={colors.primary.zomato_red} />;
         default:
-            return <MapPin size={20} color="#E23744" />;
+            return <MapPin size={20} color={colors.primary.zomato_red} />;
     }
 };
 
@@ -47,16 +48,25 @@ const AddressCard: React.FC<AddressCardProps> = ({
         <View style={[styles.container, isSelected && styles.selectedContainer]}>
             <View style={styles.header}>
                 <View style={styles.labelContainer}>
-                    {getLabelIcon(address.label)}
-                    <Text style={styles.labelText}>
-                        {getLabelText(address.label, address.customLabel)}
-                    </Text>
-                    {address.isDefault && (
-                        <View style={styles.defaultBadge}>
-                            <Text style={styles.defaultBadgeText}>DEFAULT</Text>
+                    <View style={styles.iconCircle}>
+                        {getLabelIcon(address.label)}
+                    </View>
+                    <View>
+                        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                            <Text style={styles.labelText}>
+                                {getLabelText(address.label, address.customLabel)}
+                            </Text>
+                            {address.isDefault && (
+                                <View style={styles.defaultBadge}>
+                                    <Text style={styles.defaultBadgeText}>DEFAULT</Text>
+                                </View>
+                            )}
                         </View>
-                    )}
+                        {/* Short Address Preview if needed in header, else just label */}
+                    </View>
                 </View>
+
+                {/* Edit/Delete Actions */}
                 <View style={styles.actions}>
                     {onEdit && (
                         <TouchableOpacity
@@ -64,7 +74,7 @@ const AddressCard: React.FC<AddressCardProps> = ({
                             onPress={() => onEdit(address)}
                             hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
                         >
-                            <Edit2 size={18} color="#666" />
+                            <Text style={styles.editText}>EDIT</Text>
                         </TouchableOpacity>
                     )}
                     {onDelete && (
@@ -73,11 +83,13 @@ const AddressCard: React.FC<AddressCardProps> = ({
                             onPress={() => onDelete(address)}
                             hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
                         >
-                            <Trash2 size={18} color="#E23744" />
+                            <Trash2 size={16} color={colors.secondary.gray_400} />
                         </TouchableOpacity>
                     )}
                 </View>
             </View>
+
+            <View style={styles.divider} />
 
             <View style={styles.addressContent}>
                 <Text style={styles.houseNumber}>
@@ -101,10 +113,11 @@ const AddressCard: React.FC<AddressCardProps> = ({
                         isSelected && styles.selectedButton,
                     ]}
                     onPress={() => onSelect(address)}
+                    activeOpacity={0.8}
                 >
                     {isSelected && <Check size={16} color="#fff" style={styles.checkIcon} />}
                     <Text style={[styles.selectButtonText, isSelected && styles.selectedButtonText]}>
-                        {isSelected ? 'Selected' : 'Deliver Here'}
+                        {isSelected ? 'Delivering Here' : 'Deliver Here'}
                     </Text>
                 </TouchableOpacity>
             )}
@@ -114,42 +127,48 @@ const AddressCard: React.FC<AddressCardProps> = ({
 
 const styles = StyleSheet.create({
     container: {
-        backgroundColor: '#fff',
-        borderRadius: 12,
-        padding: 16,
-        marginBottom: 12,
-        elevation: 2,
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 1 },
-        shadowOpacity: 0.1,
-        shadowRadius: 3,
+        backgroundColor: colors.secondary.white,
+        borderRadius: borderRadius.xl,
+        padding: spacing.md,
+        marginBottom: spacing.md,
+        ...shadows.sm,
+        borderWidth: 1,
+        borderColor: 'transparent',
     },
     selectedContainer: {
-        borderWidth: 2,
-        borderColor: '#E23744',
+        borderColor: colors.primary.zomato_red,
+        backgroundColor: '#FFF5F6',
     },
     header: {
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
-        marginBottom: 12,
+        marginBottom: spacing.sm,
     },
     labelContainer: {
         flexDirection: 'row',
         alignItems: 'center',
     },
+    iconCircle: {
+        width: 36,
+        height: 36,
+        borderRadius: 18,
+        backgroundColor: '#FFF5F6',
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginRight: spacing.sm,
+    },
     labelText: {
+        ...typography.h4,
+        color: colors.secondary.gray_900,
         fontSize: 16,
-        fontWeight: '600',
-        color: '#333',
-        marginLeft: 8,
     },
     defaultBadge: {
         backgroundColor: '#E8F5E9',
-        paddingHorizontal: 8,
+        paddingHorizontal: 6,
         paddingVertical: 2,
         borderRadius: 4,
-        marginLeft: 10,
+        marginLeft: 8,
     },
     defaultBadgeText: {
         fontSize: 10,
@@ -161,26 +180,36 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
     actionButton: {
-        padding: 6,
-        marginLeft: 8,
+        padding: spacing.xs,
+        marginLeft: spacing.sm,
+    },
+    editText: {
+        ...typography.button_small,
+        color: colors.primary.zomato_red,
+        fontWeight: 'bold',
+    },
+    divider: {
+        height: 1,
+        backgroundColor: colors.secondary.gray_100,
+        marginVertical: spacing.sm,
     },
     addressContent: {
-        marginBottom: 12,
+        marginBottom: spacing.md,
     },
     houseNumber: {
-        fontSize: 14,
-        fontWeight: '500',
-        color: '#333',
-        marginBottom: 4,
+        ...typography.body_medium,
+        fontWeight: '600',
+        color: colors.secondary.gray_900,
+        marginBottom: 2,
     },
     fullAddress: {
-        fontSize: 13,
-        color: '#666',
+        ...typography.body_small,
+        color: colors.secondary.gray_600,
         lineHeight: 18,
     },
     landmark: {
-        fontSize: 12,
-        color: '#888',
+        ...typography.caption,
+        color: colors.secondary.gray_500,
         marginTop: 4,
         fontStyle: 'italic',
     },
@@ -188,23 +217,22 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'center',
-        backgroundColor: '#fff',
+        backgroundColor: colors.secondary.white,
         borderWidth: 1,
-        borderColor: '#E23744',
-        borderRadius: 8,
-        paddingVertical: 10,
+        borderColor: colors.primary.zomato_red,
+        borderRadius: borderRadius.lg,
+        paddingVertical: 12,
         marginTop: 4,
     },
     selectedButton: {
-        backgroundColor: '#E23744',
+        backgroundColor: colors.primary.zomato_red,
     },
     selectButtonText: {
-        fontSize: 14,
-        fontWeight: '600',
-        color: '#E23744',
+        ...typography.button_small,
+        color: colors.primary.zomato_red,
     },
     selectedButtonText: {
-        color: '#fff',
+        color: colors.secondary.white,
     },
     checkIcon: {
         marginRight: 6,
