@@ -3,7 +3,8 @@ import { View, StyleSheet, FlatList, ActivityIndicator, Text } from 'react-nativ
 import HomeHeader from '../../components/Home/HomeHeader';
 import PromoCarousel from '../../components/Home/PromoCarousel';
 import CategoryRail from '../../components/Home/CategoryRail';
-import RestaurantCard from '../../components/Home/RestaurantCard';
+import { RestaurantCard } from '@zomato/ui';
+import { colors } from '@zomato/design-tokens';
 import { HomeService } from '../../services/home.service';
 
 const HomeScreen = () => {
@@ -38,13 +39,18 @@ const HomeScreen = () => {
             <HomeHeader />
             {loading ? (
                 <View style={styles.loadingContainer}>
-                    <ActivityIndicator size="large" color="#E23744" />
+                    <ActivityIndicator size="large" color={colors.primary.zomato_red} />
                 </View>
             ) : (
                 <FlatList
                     data={restaurants}
                     keyExtractor={(item) => item.id}
-                    renderItem={({ item }) => <RestaurantCard restaurant={item} />}
+                    renderItem={({ item }) => (
+                        <RestaurantCard
+                            restaurant={item}
+                            onPress={() => console.log('Restaurant pressed:', item.id)}
+                        />
+                    )}
                     ListHeaderComponent={renderHeader}
                     contentContainerStyle={{ paddingBottom: 80 }}
                     showsVerticalScrollIndicator={false}
