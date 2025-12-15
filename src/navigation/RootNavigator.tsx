@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { createStackNavigator } from '@react-navigation/stack';
+import { createStackNavigator, CardStyleInterpolators, HeaderStyleInterpolators, TransitionSpecs } from '@react-navigation/stack';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import AuthNavigator from './AuthNavigator';
 import TabNavigator from './TabNavigator';
@@ -96,7 +96,20 @@ const RootNavigator = () => {
     }
 
     return (
-        <Stack.Navigator screenOptions={{ headerShown: false }} initialRouteName={initialRoute}>
+        <Stack.Navigator
+            screenOptions={{
+                headerShown: false,
+                cardStyleInterpolator: CardStyleInterpolators.forHorizontalIOS,
+                headerStyleInterpolator: HeaderStyleInterpolators.forFade,
+                transitionSpec: {
+                    open: TransitionSpecs.TransitionIOSSpec,
+                    close: TransitionSpecs.TransitionIOSSpec,
+                },
+                gestureEnabled: true,
+                gestureDirection: 'horizontal',
+            }}
+            initialRouteName={initialRoute}
+        >
             <Stack.Screen name="Auth" component={AuthNavigator} />
             <Stack.Screen name="Main" component={TabNavigator} />
             <Stack.Group screenOptions={{ presentation: 'card' }}>
