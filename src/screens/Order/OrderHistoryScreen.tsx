@@ -24,6 +24,7 @@ import { RootState, AppDispatch } from '../../store/store';
 import { fetchHistory, fetchActiveOrders } from '../../store/slices/orderSlice';
 import { Order, OrderStatus } from '../../types/order.types';
 import { DateRangeFilter } from '../../types/history.types';
+import { colors, spacing, typography, borderRadius } from '@zomato/design-tokens';
 import { OrderStackParamList } from '../../types/order.types';
 
 import { OrderHistoryCard, OrderFilters } from '../../components/Order';
@@ -153,7 +154,7 @@ const OrderHistoryScreen = () => {
 
     const renderEmptyState = () => (
         <View style={styles.emptyState}>
-            <ShoppingBag size={64} color="#E0E0E0" />
+            <ShoppingBag size={64} color={colors.secondary.gray_200} />
             <Text style={styles.emptyTitle}>No orders found</Text>
             <Text style={styles.emptySubtitle}>
                 Looks like you haven't placed any orders yet or check your filters.
@@ -165,13 +166,13 @@ const OrderHistoryScreen = () => {
         <View>
             {/* Search Bar */}
             <View style={styles.searchContainer}>
-                <Search size={20} color="#666" style={styles.searchIcon} />
+                <Search size={20} color={colors.secondary.gray_500} style={styles.searchIcon} />
                 <TextInput
                     style={styles.searchInput}
                     placeholder="Search by restaurant or dish..."
                     value={searchQuery}
                     onChangeText={handleSearch}
-                    placeholderTextColor="#999"
+                    placeholderTextColor={colors.secondary.gray_400}
                 />
             </View>
 
@@ -224,7 +225,7 @@ const OrderHistoryScreen = () => {
                 }
                 onEndReached={handleLoadMore}
                 onEndReachedThreshold={0.5}
-                ListFooterComponent={isLoading && orderHistory.length > 0 ? <ActivityIndicator color="#E23744" style={{ padding: 10 }} /> : null}
+                ListFooterComponent={isLoading && orderHistory.length > 0 ? <ActivityIndicator color={colors.primary.zomato_red} style={{ padding: 10 }} /> : null}
             />
         </SafeAreaView>
     );
@@ -233,55 +234,54 @@ const OrderHistoryScreen = () => {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#FAFAFA',
+        backgroundColor: colors.secondary.gray_50,
     },
     header: {
-        paddingVertical: 12,
-        paddingHorizontal: 16,
-        backgroundColor: '#fff',
+        paddingVertical: spacing.md,
+        paddingHorizontal: spacing.lg,
+        backgroundColor: colors.secondary.white,
         borderBottomWidth: 1,
-        borderBottomColor: '#F0F0F0',
+        borderBottomColor: colors.secondary.gray_100,
     },
     headerTitle: {
-        fontSize: 18,
-        fontWeight: '700',
-        color: '#333',
+        ...typography.h4,
+        color: colors.secondary.gray_900,
     },
     listContent: {
-        paddingBottom: 20,
+        paddingBottom: spacing.xl,
         flexGrow: 1,
     },
     searchContainer: {
         flexDirection: 'row',
         alignItems: 'center',
-        paddingHorizontal: 16,
-        paddingVertical: 12,
-        backgroundColor: '#fff',
+        paddingHorizontal: spacing.lg,
+        paddingVertical: spacing.md,
+        backgroundColor: colors.secondary.white,
     },
     searchInput: {
         flex: 1,
-        backgroundColor: '#F5F5F5',
-        borderRadius: 8,
-        paddingVertical: 10,
+        backgroundColor: colors.secondary.gray_100,
+        borderRadius: borderRadius.md,
+        paddingVertical: spacing.sm,
         paddingHorizontal: 40,
-        fontSize: 15,
-        color: '#333',
+        fontSize: 15, // keep custom if typopgraphy mismatch
+        color: colors.secondary.gray_900,
+        height: 40,
     },
     searchIcon: {
         position: 'absolute',
-        left: 28,
+        left: 28, // adjust based on padding
         zIndex: 1,
     },
     sectionTitle: {
-        fontSize: 16,
-        fontWeight: '700',
-        color: '#333',
-        marginHorizontal: 16,
-        marginTop: 20,
-        marginBottom: 10,
+        ...typography.h5,
+        color: colors.secondary.gray_900,
+        marginHorizontal: spacing.lg,
+        marginTop: spacing.lg,
+        marginBottom: spacing.sm,
     },
     activeOrderSection: {
-        backgroundColor: '#FFF8F9',
+        backgroundColor: '#FFF8F9', // Light red accent
         paddingBottom: 4,
     },
     emptyState: {
@@ -290,16 +290,15 @@ const styles = StyleSheet.create({
         paddingTop: 60,
     },
     emptyTitle: {
-        fontSize: 18,
-        fontWeight: '600',
-        color: '#333',
-        marginTop: 16,
+        ...typography.h4,
+        color: colors.secondary.gray_900,
+        marginTop: spacing.lg,
     },
     emptySubtitle: {
-        fontSize: 14,
-        color: '#666',
+        ...typography.body_medium,
+        color: colors.secondary.gray_600,
         textAlign: 'center',
-        marginTop: 8,
+        marginTop: spacing.sm,
         paddingHorizontal: 40,
     },
 });
