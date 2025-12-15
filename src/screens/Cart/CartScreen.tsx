@@ -1,13 +1,18 @@
-import React, { useEffect } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Image, Pressable } from 'react-native';
+import React from 'react';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Image } from 'react-native';
 import { useSelector, useDispatch } from 'react-redux';
 import { useNavigation } from '@react-navigation/native';
-import { ArrowLeft, Clock, MapPin, ChevronRight, Percent, CreditCard } from 'lucide-react-native';
+import { ArrowLeft, MapPin, ChevronRight, Percent, Home, Clock } from 'lucide-react-native';
 import type { RootState } from '../../store/store';
-import { setTip, clearCart } from '../../store/slices/cartSlice';
+import { setTip } from '../../store/slices/cartSlice';
 import CartItem from '../../components/Cart/CartItem';
 import BillDetails from '../../components/Cart/BillDetails';
 import TipSelector from '../../components/Cart/TipSelector';
+import { colors, spacing, typography, borderRadius, shadows } from '@zomato/design-tokens';
+import { EmptyState } from '@zomato/ui'; // If available, or use the custom one in Search screen context
+
+// If @zomato/ui EmptyState not exported yet, we use local fallback or previous implementation
+import { EmptyState as CustomEmptyState } from '@zomato/ui';
 
 const CartScreen = () => {
     const navigation = useNavigation<any>();
@@ -17,15 +22,13 @@ const CartScreen = () => {
     if (items.length === 0) {
         return (
             <View style={styles.emptyContainer}>
-                <Image
-                    source={{ uri: 'https://cdn-icons-png.flaticon.com/512/11329/11329060.png' }}
-                    style={styles.emptyImage}
+                <CustomEmptyState
+                    variant="cart"
+                    title="Your cart is empty"
+                    description="Good food is always cooking! Go ahead, order some yummy items from the menu."
+                    ctaText="Browse Restaurants"
+                    onPressCta={() => navigation.goBack()}
                 />
-                <Text style={styles.emptyTitle}>Cart is empty</Text>
-                <Text style={styles.emptySubtitle}>Good food is always cooking! Go ahead, order some yummy items from the menu.</Text>
-                <TouchableOpacity style={styles.browseButton} onPress={() => navigation.goBack()}>
-                    <Text style={styles.browseButtonText}>Browse Restaurants</Text>
-                </TouchableOpacity>
             </View>
         );
     }
@@ -39,78 +42,104 @@ const CartScreen = () => {
             {/* Header */}
             <View style={styles.header}>
                 <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
-                    <ArrowLeft size={24} color="#333" />
+                    <ArrowLeft size={24} color={colors.secondary.gray_900} />
                 </TouchableOpacity>
-                <View>
-                    <Text style={styles.headerTitle}>{restaurant?.name}</Text>
+                <View style={{ flex: 1 }}>
+                    <Text style={styles.headerTitle} numberOfLines={1}>{restaurant?.name}</Text>
                     <Text style={styles.headerSubtitle}>Delivery at Home</Text>
                 </View>
             </View>
 
             <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
-                {/* Items List */}
-                <View style={styles.section}>
+
+                {/* 1. Items Card */}
+                <View style={styles.card}>
+                    <View style={styles.cardHeader}>
+                        <View style={{ flex: 1 }}>
+                            <Text style={styles.sectionTitle}>Items Added</Text>
+                        </View>
+                        {/* Could add a 'Clear' button here */}
+                    </View>
                     {items.map((item) => (
                         <CartItem key={item.id} item={item} />
                     ))}
                     <TouchableOpacity style={styles.addMoreButton} onPress={() => navigation.goBack()}>
-                        <PlusIcon />
-                        <Text style={styles.addMoreText}>Add more items</Text>
+                        <Text style={styles.addMoreText}>+ Add more items</Text>
                     </TouchableOpacity>
                 </View>
 
-                {/* Offers */}
-                <View style={styles.section}>
+                {/* 2. Offers Card */}
+                <View style={styles.card}>
+                    <Text style={styles.sectionTitle}>Offers & Benefits</Text>
                     <TouchableOpacity style={styles.offerRow}>
                         <View style={styles.offerLeft}>
-                            <Percent size={20} color="#E23744" />
-                            <Text style={styles.offerText}>Use coupons</Text>
+                            <View style={styles.percentIcon}>
+                                <Percent size={14} color={colors.primary.zomato_red} />
+                            </View>
+                            <View>
+                                <Text style={styles.offerText}>Apply Coupon</Text>
+                                <Text style={styles.offerSubtext}>Save more with coupons</Text>
+                            </View>
                         </View>
-                        <ChevronRight size={20} color="#ccc" />
+                        <ChevronRight size={20} color={colors.secondary.gray_400} />
                     </TouchableOpacity>
                 </View>
 
-                {/* Tip */}
+                {/* 3. Tip Selector */}
                 <TipSelector selectedTip={bill.tip} onSelectTip={handleTipSelect} />
 
-                {/* Bill Details */}
+                {/* 5. Bill Details */}
                 <BillDetails bill={bill} />
 
-                {/* Delivery Instructions (Placeholder) */}
-                <View style={styles.section}>
-                    <Text style={styles.sectionTitle}>Cancellation Policy</Text>
+                {/* 6. Policy Text */}
+                <View style={styles.policyContainer}>
+                    <Text style={styles.policyTitle}>Cancellation Policy</Text>
                     <Text style={styles.policyText}>
                         100% cancellation fee will be applicable if you decide to cancel the order anytime after order placement.
                     </Text>
                 </View>
 
-                <View style={{ height: 100 }} />
+                <View style={{ height: 120 }} />
             </ScrollView>
 
-            {/* Footer */}
+            {/* Footer with Address & Pay Button */}
             <View style={styles.footer}>
-                <View style={styles.addressRow}>
+                {/* Address Strip */}
+                <View style={styles.addressStrip}>
                     <View style={styles.addressLeft}>
-                        <MapPin size={16} color="#E23744" />
-                        <Text style={styles.addressText}>Home • New Delhi</Text>
+                        <View style={styles.homeIcon}>
+                            <Home size={14} color={colors.primary.zomato_red} fill={colors.primary.zomato_red} />
+                        </View>
+                        <View>
+                            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                                <Text style={styles.addressTitle}>Home</Text>
+                                <Text style={styles.addressSubtitle}> • Work</Text>
+                            </View>
+                            <Text style={styles.addressText} numberOfLines={1}>Sector 62, Noida, Uttar Pradesh...</Text>
+                        </View>
                     </View>
                     <TouchableOpacity onPress={() => navigation.navigate('Address')}>
-                        <Text style={styles.changeText}>CHANGE</Text>
+                        <Text style={styles.changeBtn}>CHANGE</Text>
                     </TouchableOpacity>
                 </View>
 
-                <View style={styles.paymentRow}>
-                    <View style={styles.paymentLeft}>
-                        <View style={{ borderRightWidth: 1, borderRightColor: '#fff', paddingRight: 10, marginRight: 10 }}>
+                {/* Payment Section */}
+                <View style={styles.paymentSection}>
+                    <View>
+                        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                             <Text style={styles.totalText}>₹{bill.grandTotal}</Text>
-                            <Text style={styles.viewDetailedText}>TOTAL</Text>
+                            <View style={styles.greenTag}><Text style={{ fontSize: 10, color: 'white', fontWeight: 'bold' }}>TOTAL</Text></View>
                         </View>
+                        <TouchableOpacity><Text style={styles.viewDetailsLink}>View Detailed Bill</Text></TouchableOpacity>
                     </View>
+
                     <TouchableOpacity
                         style={styles.placeOrderButton}
-                        onPress={() => navigation.navigate('ActiveOrder', { orderId: 'order_2' })}
+                        onPress={() => navigation.navigate('OrderSuccess')}
                     >
-                        <Text style={styles.placeOrderText}>Place Order</Text>
+                        <View style={{ flex: 1, alignItems: 'center' }}>
+                            <Text style={styles.placeOrderText}>Place Order</Text>
+                        </View>
                         <View style={styles.triangle} />
                     </TouchableOpacity>
                 </View>
@@ -119,188 +148,213 @@ const CartScreen = () => {
     );
 };
 
-// Helper Icon
-const PlusIcon = () => (
-    <View style={{ width: 18, height: 18, borderRadius: 12, borderWidth: 1, borderColor: '#E23744', justifyContent: 'center', alignItems: 'center', marginRight: 10 }}>
-        <Text style={{ color: '#E23744', fontSize: 12, lineHeight: 14 }}>+</Text>
-    </View>
-);
-
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#F5F6F8', // Light grey bg
+        backgroundColor: '#F4F5F7', // Light gray background standard for lists
+    },
+    emptyContainer: {
+        flex: 1,
+        backgroundColor: 'white',
     },
     header: {
         flexDirection: 'row',
         alignItems: 'center',
-        padding: 15,
-        backgroundColor: '#fff',
-        elevation: 2,
+        paddingHorizontal: spacing.md,
+        paddingTop: 50, // Safe Area
+        paddingBottom: spacing.sm,
+        backgroundColor: colors.secondary.white,
+        borderBottomWidth: 1,
+        borderBottomColor: colors.secondary.gray_100,
     },
     backButton: {
-        marginRight: 15,
+        marginRight: spacing.md,
+        padding: 4,
     },
     headerTitle: {
-        fontSize: 18,
-        fontWeight: 'bold',
-        color: '#333',
+        ...typography.h4,
+        color: colors.secondary.gray_900,
     },
     headerSubtitle: {
-        fontSize: 12,
-        color: '#666',
+        ...typography.caption,
+        color: colors.secondary.gray_500,
     },
     scrollContent: {
-        padding: 15,
+        padding: spacing.md,
     },
-    section: {
-        backgroundColor: '#fff',
-        borderRadius: 12,
-        padding: 15,
-        marginBottom: 20,
+    card: {
+        backgroundColor: colors.secondary.white,
+        borderRadius: borderRadius.xl,
+        padding: spacing.md,
+        marginBottom: spacing.lg,
+        ...shadows.sm,
+    },
+    cardHeader: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        marginBottom: spacing.md
+    },
+    sectionTitle: {
+        ...typography.h4,
+        color: colors.secondary.gray_900,
+        marginBottom: spacing.sm,
     },
     addMoreButton: {
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'center',
-        marginTop: 10,
-        paddingTop: 15,
+        marginTop: spacing.sm,
+        paddingVertical: spacing.sm,
         borderTopWidth: 1,
-        borderTopColor: '#f0f0f0',
+        borderTopColor: colors.secondary.gray_100,
+        borderStyle: 'dashed',
     },
     addMoreText: {
-        fontSize: 14,
-        fontWeight: '500',
-        color: '#E23744',
+        ...typography.body_medium,
+        color: colors.primary.zomato_red,
+        fontWeight: '600',
     },
     offerRow: {
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
+        marginTop: spacing.sm,
     },
     offerLeft: {
         flexDirection: 'row',
         alignItems: 'center',
+        gap: spacing.md,
+    },
+    percentIcon: {
+        width: 32,
+        height: 32,
+        borderRadius: 16,
+        backgroundColor: '#FFF5F6',
+        alignItems: 'center',
+        justifyContent: 'center',
     },
     offerText: {
-        fontSize: 14,
-        fontWeight: 'bold',
-        color: '#333',
-        marginLeft: 10,
+        ...typography.body_medium,
+        fontWeight: '700',
+        color: colors.secondary.gray_900,
     },
-    sectionTitle: {
-        fontSize: 14,
+    offerSubtext: {
+        ...typography.caption,
+        color: colors.secondary.gray_500,
+    },
+    policyContainer: {
+        padding: spacing.md,
+        backgroundColor: colors.secondary.white,
+        borderRadius: borderRadius.xl,
+        marginBottom: spacing.lg,
+    },
+    policyTitle: {
+        ...typography.caption,
         fontWeight: 'bold',
-        color: '#333',
-        marginBottom: 5,
+        color: colors.secondary.gray_700,
+        marginBottom: 4,
     },
     policyText: {
-        fontSize: 12,
-        color: '#666',
-        lineHeight: 18,
+        ...typography.caption,
+        color: colors.secondary.gray_500,
+        lineHeight: 16,
     },
     footer: {
         position: 'absolute',
         bottom: 0,
         left: 0,
         right: 0,
-        backgroundColor: '#fff',
-        elevation: 10,
+        backgroundColor: colors.secondary.white,
+        borderTopLeftRadius: borderRadius.xl,
+        borderTopRightRadius: borderRadius.xl,
+        ...shadows.xl,
     },
-    addressRow: {
+    addressStrip: {
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
-        padding: 15,
+        padding: spacing.md,
         borderBottomWidth: 1,
-        borderBottomColor: '#f0f0f0',
+        borderBottomColor: colors.secondary.gray_100,
     },
     addressLeft: {
         flexDirection: 'row',
         alignItems: 'center',
+        flex: 1,
+        marginRight: 10,
+    },
+    homeIcon: {
+        marginRight: spacing.sm,
+    },
+    addressTitle: {
+        ...typography.body_small,
+        fontWeight: 'bold',
+        color: colors.secondary.gray_900,
+    },
+    addressSubtitle: {
+        ...typography.caption,
+        color: colors.secondary.gray_500,
     },
     addressText: {
-        fontSize: 12,
-        fontWeight: 'bold',
-        color: '#333',
-        marginLeft: 5,
+        ...typography.caption,
+        color: colors.secondary.gray_600,
+        marginTop: 2,
     },
-    changeText: {
-        fontSize: 12,
-        fontWeight: 'bold',
-        color: '#E23744',
+    changeBtn: {
+        ...typography.button_small,
+        color: colors.primary.zomato_red,
     },
-    paymentRow: {
+    paymentSection: {
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
-        padding: 15,
-    },
-    paymentLeft: {
-        flexDirection: 'row',
-        alignItems: 'center',
+        padding: spacing.md,
+        paddingBottom: 30, // Bottom safe area
     },
     totalText: {
-        fontSize: 18,
-        fontWeight: 'bold',
-        color: '#333',
+        ...typography.h3,
+        color: colors.secondary.gray_900,
+        marginRight: 6,
     },
-    viewDetailedText: {
-        fontSize: 10,
-        color: '#E23744',
+    greenTag: {
+        backgroundColor: '#24963F',
+        paddingHorizontal: 4,
+        borderRadius: 4,
+    },
+    viewDetailsLink: {
+        ...typography.body_small,
+        color: colors.primary.zomato_red,
+        textDecorationLine: 'underline',
         fontWeight: 'bold',
-        marginTop: 2,
     },
     placeOrderButton: {
-        backgroundColor: '#E23744',
+        backgroundColor: colors.primary.zomato_red,
         paddingVertical: 12,
-        paddingHorizontal: 40,
-        borderRadius: 8,
+        paddingHorizontal: 32,
+        borderRadius: borderRadius.lg,
+        flexDirection: 'row',
+        alignItems: 'center',
+        width: '50%',
     },
     placeOrderText: {
-        color: '#fff',
-        fontWeight: 'bold',
-        fontSize: 16,
+        ...typography.h4,
+        color: colors.secondary.white,
     },
     triangle: {
-        // decorative triangle if needed
+        width: 0,
+        height: 0,
+        backgroundColor: 'transparent',
+        borderStyle: 'solid',
+        borderLeftWidth: 5,
+        borderRightWidth: 5,
+        borderBottomWidth: 8,
+        borderLeftColor: 'transparent',
+        borderRightColor: 'transparent',
+        borderBottomColor: 'white',
+        transform: [{ rotate: '90deg' }],
+        position: 'absolute',
+        right: 12,
     },
-    emptyContainer: {
-        flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-        backgroundColor: '#fff',
-        padding: 40,
-    },
-    emptyImage: {
-        width: 200,
-        height: 200,
-        marginBottom: 20,
-    },
-    emptyTitle: {
-        fontSize: 20,
-        fontWeight: 'bold',
-        color: '#333',
-        marginBottom: 10,
-    },
-    emptySubtitle: {
-        fontSize: 14,
-        color: '#666',
-        textAlign: 'center',
-        marginBottom: 30,
-        lineHeight: 20,
-    },
-    browseButton: {
-        borderWidth: 1,
-        borderColor: '#E23744',
-        paddingHorizontal: 20,
-        paddingVertical: 10,
-        borderRadius: 8,
-    },
-    browseButtonText: {
-        color: '#E23744',
-        fontWeight: 'bold',
-    }
 });
 
 export default CartScreen;
