@@ -6,7 +6,8 @@ import { ArrowLeft, CreditCard, ChevronRight, ShieldCheck, Wallet } from 'lucide
 import { colors, spacing, typography, borderRadius, shadows } from '@zomato/design-tokens';
 import { useSelector, useDispatch } from 'react-redux';
 import { RootState } from '../../store/store';
-import { createOrder } from '../../store/slices/orderSlice'; // Assumption: orderSlice exists or will be updated
+import createOrder from "../../store/slices/orderSlice";
+// Assumption: orderSlice exists or will be updated
 
 const PAYMENT_METHODS = [
     {
