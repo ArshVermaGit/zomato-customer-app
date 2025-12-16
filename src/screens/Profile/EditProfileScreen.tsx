@@ -122,7 +122,6 @@ const styles = StyleSheet.create({
         color: colors.secondary.gray_900,
     },
     saveText: {
-        ...typography.wrapper_small, // Fallback if button_medium doesn't exist
         fontSize: 16,
         fontWeight: '600',
         color: colors.primary.zomato_red,
