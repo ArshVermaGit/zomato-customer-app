@@ -45,7 +45,7 @@ export const useSearch = () => {
             setSuggestions([]);
             return;
         }
-        await new Promise(resolve => setTimeout(resolve, 200));
+        await new Promise(resolve => setTimeout(() => resolve(true), 200));
         setSuggestions([
             `${query} in Restaurant`,
             `${query} delivery`,
