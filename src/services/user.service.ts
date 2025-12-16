@@ -1,23 +1,9 @@
-/**
- * User Service
- * Mock service for user profile management
- */
-
+import { UserService as ApiUserService } from '@zomato/api-client';
 import { UserProfile, FavoriteRestaurant, Offer, NotificationSettings } from '../types/user.types';
 
 const mockDelay = (ms: number = 800) => new Promise(resolve => setTimeout(() => resolve(true), ms));
 
-// Mock Data
-let MOCK_USER: UserProfile = {
-    id: 'u_123',
-    name: 'Arsh Verma',
-    email: 'arsh.verma@example.com',
-    phone: '+91 98765 43210',
-    avatar: 'https://randomuser.me/api/portraits/men/32.jpg',
-    referralCode: 'ARSH50',
-    joinedDate: '2023-01-15T00:00:00Z',
-};
-
+// Mock Data for Missing APIs
 const MOCK_FAVORITES: FavoriteRestaurant[] = [
     {
         id: 'r_1',
@@ -75,17 +61,50 @@ export const UserService = {
      * Get user profile
      */
     getUserProfile: async (): Promise<UserProfile> => {
-        await mockDelay();
-        return { ...MOCK_USER };
+        try {
+            const profile = await ApiUserService.getProfile();
+            return {
+                id: profile.id,
+                name: profile.name,
+                email: profile.email,
+                phone: profile.phoneNumber,
+                avatar: profile.avatar || 'https://via.placeholder.com/150',
+                referralCode: 'ZM' + profile.id.substring(0, 4).toUpperCase(),
+                joinedDate: profile.createdAt || new Date().toISOString(),
+            };
+        } catch (error) {
+            console.warn('Failed to fetch profile, using mock fallback', error);
+            // Fallback to mock if API fails (e.g. 401 unauth or network)
+            await mockDelay();
+            return {
+                id: 'u_123',
+                name: 'Guest User',
+                email: 'guest@zomato.com',
+                phone: '+91 00000 00000',
+                avatar: 'https://via.placeholder.com/150',
+                referralCode: 'GUEST',
+                joinedDate: new Date().toISOString(),
+            };
+        }
     },
 
     /**
      * Update user profile
      */
     updateUserProfile: async (data: Partial<UserProfile>): Promise<UserProfile> => {
-        await mockDelay(1000);
-        MOCK_USER = { ...MOCK_USER, ...data };
-        return { ...MOCK_USER };
+        if (data.name || data.email) {
+            const result = await ApiUserService.updateProfile({ name: data.name, email: data.email });
+            return {
+                id: result.id,
+                name: result.name,
+                email: result.email,
+                phone: result.phoneNumber,
+                avatar: result.avatar || 'https://via.placeholder.com/150',
+                referralCode: 'ZM' + result.id.substring(0, 4).toUpperCase(),
+                joinedDate: result.createdAt,
+            };
+        }
+        return UserService.getUserProfile();
     },
 
     /**
