@@ -16,6 +16,7 @@ import { ChevronDown } from 'lucide-react-native';
 import { colors, spacing, typography, borderRadius } from '@zomato/design-tokens';
 import { Button } from '@zomato/ui';
 import { AuthStackParamList } from '../../navigation/AuthNavigator';
+import { AuthService } from '../../services/auth.service';
 import { LinearGradient } from 'expo-linear-gradient';
 
 type NavigationProp = StackNavigationProp<AuthStackParamList, 'Login'>;
@@ -29,12 +30,20 @@ export const LoginScreen = () => {
     const [isLoading, setIsLoading] = useState(false);
 
     const handleContinue = async () => {
+        if (!phoneNumber || phoneNumber.length < 10) return;
         setIsLoading(true);
-        // Simulate API call
-        setTimeout(() => {
-            setIsLoading(false);
+        try {
+            // Call API
+            await AuthService.sendOtp(`${countryCode}${phoneNumber}`); // Ensure format matches backend expectation (e.g. +919876543210)
             navigation.navigate('OTPVerification', { phoneNumber: `${countryCode} ${phoneNumber}`, countryCode });
-        }, 1500);
+        } catch (error) {
+            // Handle error (show toast etc)
+            console.error(error);
+            // Fallback for demo if API fails (offline)
+            // navigation.navigate('OTPVerification', { phoneNumber: `${countryCode} ${phoneNumber}`, countryCode });
+        } finally {
+            setIsLoading(false);
+        }
     };
 
     return (
@@ -87,15 +96,17 @@ export const LoginScreen = () => {
                     </View>
 
                     {/* Continue Button */}
-                    <Button
-                        variant="primary"
-                        fullWidth
-                        loading={isLoading}
-                        disabled={phoneNumber.length < 10}
-                        onPress={handleContinue}
-                        title="Continue"
-                        style={{ borderRadius: borderRadius.lg }} // Custom override if needed
-                    />
+                    <View style={{ borderRadius: borderRadius.lg }}>
+                        <Button
+                            variant="primary"
+                            fullWidth
+                            loading={isLoading}
+                            disabled={phoneNumber.length < 10}
+                            onPress={handleContinue}
+                        >
+                            Continue
+                        </Button>
+                    </View>
                 </View>
 
                 {/* Divider */}
