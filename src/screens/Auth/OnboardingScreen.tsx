@@ -5,7 +5,8 @@ import Animated, {
     useAnimatedScrollHandler,
     useAnimatedStyle,
     interpolate,
-    Extrapolate
+    Extrapolate,
+    SharedValue
 } from 'react-native-reanimated';
 import { colors, typography, spacing } from '@zomato/design-tokens';
 import { Button } from '@zomato/ui'; // Assuming Button is exported from UI
@@ -42,7 +43,7 @@ const slides = [
     },
 ];
 
-const PaginationDot = ({ index, scrollX }: { index: number, scrollX: Animated.SharedValue<number> }) => {
+const PaginationDot = ({ index, scrollX }: { index: number, scrollX: SharedValue<number> }) => {
     const rStyle = useAnimatedStyle(() => {
         const inputRange = [(index - 1) * SCREEN_WIDTH, index * SCREEN_WIDTH, (index + 1) * SCREEN_WIDTH];
         const dotWidth = interpolate(
@@ -130,12 +131,17 @@ const OnboardingScreen = () => {
             <View style={styles.bottomActions}>
                 {currentIndex < slides.length - 1 ? (
                     <>
-                        {/* Skip button logic? For now simple flow */}
-                        <Button title="Skip" variant="ghost" onPress={handleFinish} style={{ flex: 1, marginRight: 10 }} />
-                        <Button title="Next" variant="primary" onPress={() => console.log('Next')} style={{ flex: 1 }} />
+                        <View style={{ flex: 1, marginRight: 10 }}>
+                            <Button variant="ghost" onPress={handleFinish}>Skip</Button>
+                        </View>
+                        <View style={{ flex: 1 }}>
+                            <Button variant="primary" onPress={() => console.log('Next')}>Next</Button>
+                        </View>
                     </>
                 ) : (
-                    <Button title="Get Started" variant="primary" onPress={handleFinish} style={{ width: '100%' }} />
+                    <View style={{ width: '100%' }}>
+                        <Button variant="primary" onPress={handleFinish}>Get Started</Button>
+                    </View>
                 )}
             </View>
         </View>
