@@ -20,6 +20,7 @@ const RestaurantHero = ({ restaurant }: RestaurantHeroProps) => {
                     source={{ uri: restaurant.image }}
                     style={styles.image}
                     resizeMode="cover"
+                    // @ts-ignore
                     sharedTransitionTag={`restaurant-${restaurant.id}`}
                 />
                 <View style={styles.overlay} />
