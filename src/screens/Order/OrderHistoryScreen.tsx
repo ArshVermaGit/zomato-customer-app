@@ -274,7 +274,10 @@ const styles = StyleSheet.create({
         zIndex: 1,
     },
     sectionTitle: {
-        ...typography.h5,
+        fontSize: 18,
+        fontWeight: '700',
+        letterSpacing: 0,
+        lineHeight: 24,
         color: colors.secondary.gray_900,
         marginHorizontal: spacing.lg,
         marginTop: spacing.lg,
