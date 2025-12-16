@@ -18,7 +18,7 @@ import CartScreen from '../screens/Cart/CartScreen'; // Using Cart instead of Or
 
 // IMPORTANT: ProfileScreen was lazy loaded in Root. importing it directly here might cause issues if it has huge deps, but standard for Tabs.
 import ProfileScreen from '../screens/Profile/ProfileScreen';
-import DiningScreen from '../screens/Dining/DiningScreen'; // If exists
+
 
 const Tab = createBottomTabNavigator();
 
