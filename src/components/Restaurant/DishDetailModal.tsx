@@ -405,7 +405,6 @@ const styles = StyleSheet.create({
     },
     selectorActive: {
         borderColor: colors.primary.zomato_red,
-        backgroundColor: colors.primary.zomato_red, // Fill for checkbox, border for radio?
         // Actually for radio we want border red, inner red.
         // For checkbox we want fill red.
         // Let's simplify:
