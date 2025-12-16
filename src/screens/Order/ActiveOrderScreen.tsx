@@ -406,7 +406,10 @@ const styles = StyleSheet.create({
         borderRadius: borderRadius.md,
     },
     retryButtonText: {
-        ...typography.button_medium,
+        fontSize: 16,
+        fontWeight: '600',
+        letterSpacing: 0.5,
+        lineHeight: 24,
         color: colors.secondary.white,
     },
 });
