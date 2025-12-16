@@ -292,7 +292,10 @@ const styles = StyleSheet.create({
         ...shadows.md,
     },
     addButtonText: {
-        ...typography.button_medium,
+        fontSize: 16,
+        fontWeight: '600',
+        letterSpacing: 0.5,
+        lineHeight: 24,
         color: colors.secondary.white,
         marginLeft: spacing.sm,
     },
@@ -317,7 +320,10 @@ const styles = StyleSheet.create({
         borderRadius: borderRadius.lg,
     },
     addNewButtonText: {
-        ...typography.button_medium,
+        fontSize: 16,
+        fontWeight: '600',
+        letterSpacing: 0.5,
+        lineHeight: 24,
         color: colors.primary.zomato_red,
         marginLeft: spacing.sm,
     },
