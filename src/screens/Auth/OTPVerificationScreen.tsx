@@ -29,7 +29,7 @@ export const OTPVerificationScreen = ({ route }: Props) => {
     const [isVerifying, setIsVerifying] = useState(false);
 
     useEffect(() => {
-        let interval: NodeJS.Timeout;
+        let interval: ReturnType<typeof setInterval>;
         if (timer > 0) {
             interval = setInterval(() => setTimer(prev => prev - 1), 1000);
         }
@@ -127,7 +127,7 @@ export const OTPVerificationScreen = ({ route }: Props) => {
                     {otp.map((digit, index) => (
                         <TextInput
                             key={index}
-                            ref={ref => inputRefs.current[index] = ref}
+                            ref={(ref: TextInput | null) => { inputRefs.current[index] = ref; }}
                             style={[
                                 styles.otpInput,
                                 digit ? styles.otpInputFilled : null,
@@ -154,7 +154,7 @@ export const OTPVerificationScreen = ({ route }: Props) => {
 
                 {isVerifying && (
                     <View style={{ marginTop: 20 }}>
-                        <Button title="Verifying..." loading={true} variant="ghost" />
+                        <Button loading={true} variant="ghost">Verifying...</Button>
                     </View>
                 )}
             </View>
