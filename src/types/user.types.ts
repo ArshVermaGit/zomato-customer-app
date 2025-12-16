@@ -13,6 +13,8 @@ export interface UserProfile {
     joinedDate: string;
 }
 
+export type User = UserProfile;
+
 export interface FavoriteRestaurant {
     id: string;
     name: string;
