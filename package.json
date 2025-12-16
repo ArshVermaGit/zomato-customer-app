@@ -14,6 +14,7 @@
     "@babel/plugin-transform-export-namespace-from": "^7.27.1",
     "@zomato/design-tokens": "^1.0.0",
     "@zomato/ui": "^1.0.0",
+    "@zomato/api-client": "*",
     "@expo/metro-config": "^54.0.11",
     "@expo/metro-runtime": "^6.1.2",
     "@hookform/resolvers": "^5.2.2",
