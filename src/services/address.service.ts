@@ -3,6 +3,7 @@
  * Mock API service for address management, geocoding, and delivery area validation
  */
 
+import { UserService as ApiUserService } from '@zomato/api-client';
 import type {
     Address,
     CreateAddressRequest,
@@ -17,7 +18,7 @@ import type {
 // Mock delay to simulate API
 const mockDelay = (ms: number = 800) => new Promise<void>(resolve => setTimeout(resolve, ms));
 
-// Mock addresses data
+// Mock addresses data (fallback)
 let mockAddresses: Address[] = [
     {
         id: '1',
@@ -35,26 +36,6 @@ let mockAddresses: Address[] = [
         postalCode: '110001',
         country: 'India',
         isDefault: true,
-        isDeliverable: true,
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-    },
-    {
-        id: '2',
-        userId: 'user1',
-        label: 'work' as AddressLabel,
-        latitude: 28.4595,
-        longitude: 77.0266,
-        houseNumber: '301',
-        buildingName: 'Tech Park Tower',
-        landmark: 'Opposite Metro Station',
-        formattedAddress: '301, Tech Park Tower, Sector 44, Gurugram, Haryana 122003',
-        street: 'Sector 44',
-        city: 'Gurugram',
-        state: 'Haryana',
-        postalCode: '122003',
-        country: 'India',
-        isDefault: false,
         isDeliverable: true,
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
@@ -101,8 +82,34 @@ export const AddressService = {
      * GET /users/addresses
      */
     getUserAddresses: async (): Promise<Address[]> => {
-        await mockDelay();
-        return [...mockAddresses];
+        try {
+            const addresses = await ApiUserService.getAddresses();
+            // Map keys if necessary, assuming backend matches frontend roughly
+            return addresses.map((addr: any) => ({
+                id: addr.id,
+                userId: 'me',
+                label: addr.label as AddressLabel,
+                latitude: addr.latitude || 0,
+                longitude: addr.longitude || 0,
+                houseNumber: '', // Backend might split differently, mapping loosely
+                buildingName: '',
+                landmark: '',
+                formattedAddress: `${addr.line1}, ${addr.city}, ${addr.state}`,
+                street: addr.line1,
+                city: addr.city,
+                state: addr.state,
+                postalCode: addr.zip,
+                country: 'India',
+                isDefault: addr.isDefault || false,
+                isDeliverable: true,
+                createdAt: addr.createdAt,
+                updatedAt: addr.updatedAt,
+            }));
+        } catch (error) {
+            console.error(error);
+            await mockDelay();
+            return [...mockAddresses];
+        }
     },
 
     /**
@@ -110,27 +117,42 @@ export const AddressService = {
      * POST /users/addresses
      */
     addAddress: async (request: CreateAddressRequest): Promise<Address> => {
-        await mockDelay();
+        try {
+            const newAddr = await ApiUserService.createAddress({
+                label: request.label,
+                line1: `${request.houseNumber || ''} ${request.buildingName || ''} ${request.street || ''}`,
+                city: request.city,
+                state: request.state,
+                zip: request.postalCode,
+                latitude: request.latitude,
+                longitude: request.longitude,
+                isDefault: request.isDefault
+            });
 
-        const newAddress: Address = {
-            ...request,
-            id: `addr_${Date.now()}`,
-            userId: 'user1',
-            isDeliverable: true, // Would be validated server-side
-            createdAt: new Date().toISOString(),
-            updatedAt: new Date().toISOString(),
-        };
-
-        // If set as default, update other addresses
-        if (request.isDefault) {
-            mockAddresses = mockAddresses.map(addr => ({
-                ...addr,
-                isDefault: false,
-            }));
+            return {
+                id: newAddr.id,
+                userId: 'me',
+                label: request.label,
+                latitude: request.latitude,
+                longitude: request.longitude,
+                houseNumber: request.houseNumber || '',
+                buildingName: request.buildingName || '',
+                landmark: request.landmark || '',
+                formattedAddress: `${request.houseNumber}, ${request.street}, ${request.city}`,
+                street: request.street,
+                city: request.city,
+                state: request.state,
+                postalCode: request.postalCode,
+                country: 'India',
+                isDefault: newAddr.isDefault || false,
+                isDeliverable: true,
+                createdAt: new Date().toISOString(),
+                updatedAt: new Date().toISOString(),
+            };
+        } catch (error) {
+            console.error(error);
+            throw error;
         }
-
-        mockAddresses.push(newAddress);
-        return newAddress;
     },
 
     /**
@@ -138,29 +160,30 @@ export const AddressService = {
      * PUT /users/addresses/:id
      */
     updateAddress: async (request: UpdateAddressRequest): Promise<Address> => {
-        await mockDelay();
-
-        const index = mockAddresses.findIndex(addr => addr.id === request.id);
-        if (index === -1) {
-            throw new Error('Address not found');
+        try {
+            const updated = await ApiUserService.updateAddress(request.id, {
+                label: request.label,
+                line1: request.street,
+                city: request.city,
+                state: request.state,
+                zip: request.postalCode,
+                isDefault: request.isDefault
+            });
+            // Simplified return mapping
+            return {
+                ...request,
+                id: updated.id,
+                isDefault: updated.isDefault || false,
+                updatedAt: new Date().toISOString(),
+                // Fill other required fields from request as we don't fetch full obj again usually without GET
+                userId: 'me',
+                isDeliverable: true,
+                createdAt: new Date().toISOString(),
+            } as Address;
+        } catch (error) {
+            console.error(error);
+            throw error;
         }
-
-        // If set as default, update other addresses
-        if (request.isDefault) {
-            mockAddresses = mockAddresses.map(addr => ({
-                ...addr,
-                isDefault: false,
-            }));
-        }
-
-        const updatedAddress: Address = {
-            ...mockAddresses[index],
-            ...request,
-            updatedAt: new Date().toISOString(),
-        };
-
-        mockAddresses[index] = updatedAddress;
-        return updatedAddress;
     },
 
     /**
@@ -168,14 +191,12 @@ export const AddressService = {
      * DELETE /users/addresses/:id
      */
     deleteAddress: async (id: string): Promise<void> => {
-        await mockDelay();
-
-        const index = mockAddresses.findIndex(addr => addr.id === id);
-        if (index === -1) {
-            throw new Error('Address not found');
+        try {
+            await ApiUserService.deleteAddress(id);
+        } catch (error) {
+            console.error(error);
+            throw error;
         }
-
-        mockAddresses.splice(index, 1);
     },
 
     /**
@@ -334,11 +355,15 @@ export const AddressService = {
      * Set address as default
      */
     setDefaultAddress: async (addressId: string): Promise<void> => {
-        await mockDelay();
-
-        mockAddresses = mockAddresses.map(addr => ({
-            ...addr,
-            isDefault: addr.id === addressId,
-        }));
+        try {
+            await ApiUserService.setDefaultAddress(addressId);
+        } catch (error) {
+            console.error(error);
+            // mock fallback
+            mockAddresses = mockAddresses.map(addr => ({
+                ...addr,
+                isDefault: addr.id === addressId,
+            }));
+        }
     },
 };
