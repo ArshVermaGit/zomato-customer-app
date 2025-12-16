@@ -8,7 +8,7 @@ import { ChatMessage, SenderType } from '../types/chat.types';
 type MessageCallback = (message: ChatMessage) => void;
 type TypingCallback = (isTyping: boolean) => void;
 
-const mockDelay = (ms: number = 500) => new Promise(resolve => setTimeout(resolve, ms));
+const mockDelay = (ms: number = 500) => new Promise(resolve => setTimeout(() => resolve(true), ms));
 
 const INITIAL_MESSAGES: ChatMessage[] = [
     {
