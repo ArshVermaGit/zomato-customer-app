@@ -1,28 +1,27 @@
 import React from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Image } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert, ActivityIndicator } from 'react-native';
 import { useSelector, useDispatch } from 'react-redux';
 import { useNavigation } from '@react-navigation/native';
-import { ArrowLeft, MapPin, ChevronRight, Percent, Home, Clock } from 'lucide-react-native';
+import { ArrowLeft, Percent, Home, ChevronRight } from 'lucide-react-native';
 import type { RootState } from '../../store/store';
-import { setTip } from '../../store/slices/cartSlice';
+import { setTip, clearCart } from '../../store/slices/cartSlice';
 import CartItem from '../../components/Cart/CartItem';
 import BillDetails from '../../components/Cart/BillDetails';
 import TipSelector from '../../components/Cart/TipSelector';
 import { colors, spacing, typography, borderRadius, shadows } from '@zomato/design-tokens';
-import { EmptyState } from '@zomato/ui'; // If available, or use the custom one in Search screen context
-
-// If @zomato/ui EmptyState not exported yet, we use local fallback or previous implementation
-import { EmptyState as CustomEmptyState } from '@zomato/ui';
+import { EmptyState } from '@zomato/ui';
+import { useCreateOrderMutation } from '../../services/api/ordersApi';
 
 const CartScreen = () => {
     const navigation = useNavigation<any>();
     const dispatch = useDispatch();
-    const { items, restaurant, bill } = useSelector((state: RootState) => state.cart);
+    const { items, restaurant, bill, deliveryAddressId, paymentMethod } = useSelector((state: RootState) => state.cart);
+    const [createOrder, { isLoading }] = useCreateOrderMutation();
 
     if (items.length === 0) {
         return (
             <View style={styles.emptyContainer}>
-                <CustomEmptyState
+                <EmptyState
                     variant="cart"
                     title="Your cart is empty"
                     description="Good food is always cooking! Go ahead, order some yummy items from the menu."
@@ -35,6 +34,37 @@ const CartScreen = () => {
 
     const handleTipSelect = (amount: number) => {
         dispatch(setTip(amount));
+    };
+
+    const handlePlaceOrder = async () => {
+        // Validation (In real app, ensure address/payment is selected)
+        // For MVP, we default or mock these if missing
+
+        try {
+            const orderPayload = {
+                restaurantId: restaurant?.id,
+                items: items.map(i => ({
+                    menuItemId: i.dishId,
+                    quantity: i.quantity,
+                    price: i.finalPrice,
+                    name: i.name // Helpful for backend if denormalized
+                })),
+                totalAmount: bill.grandTotal,
+                addressId: deliveryAddressId || 'ADDR-DEFAULT', // TODO: Real address selection
+                paymentMethod: paymentMethod || 'COD',
+                instructions: '', // Todo: Add input for this
+                // Tip, discount etc can be added to payload
+            };
+
+            const response = await createOrder(orderPayload).unwrap();
+
+            // Success
+            dispatch(clearCart());
+            navigation.navigate('OrderSuccess', { orderId: response.id });
+        } catch (error: any) {
+            console.error('Order Placement Failed', error);
+            Alert.alert('Order Failed', error.data?.message || 'Something went wrong. Please try again.');
+        }
     };
 
     return (
@@ -58,7 +88,6 @@ const CartScreen = () => {
                         <View style={{ flex: 1 }}>
                             <Text style={styles.sectionTitle}>Items Added</Text>
                         </View>
-                        {/* Could add a 'Clear' button here */}
                     </View>
                     {items.map((item) => (
                         <CartItem key={item.id} item={item} />
@@ -134,13 +163,20 @@ const CartScreen = () => {
                     </View>
 
                     <TouchableOpacity
-                        style={styles.placeOrderButton}
-                        onPress={() => navigation.navigate('OrderSuccess')}
+                        style={[styles.placeOrderButton, isLoading && { opacity: 0.7 }]}
+                        onPress={handlePlaceOrder}
+                        disabled={isLoading}
                     >
-                        <View style={{ flex: 1, alignItems: 'center' }}>
-                            <Text style={styles.placeOrderText}>Place Order</Text>
-                        </View>
-                        <View style={styles.triangle} />
+                        {isLoading ? (
+                            <ActivityIndicator color="white" />
+                        ) : (
+                            <>
+                                <View style={{ flex: 1, alignItems: 'center' }}>
+                                    <Text style={styles.placeOrderText}>Place Order</Text>
+                                </View>
+                                <View style={styles.triangle} />
+                            </>
+                        )}
                     </TouchableOpacity>
                 </View>
             </View>
@@ -151,7 +187,7 @@ const CartScreen = () => {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#F4F5F7', // Light gray background standard for lists
+        backgroundColor: '#F4F5F7',
     },
     emptyContainer: {
         flex: 1,
@@ -161,7 +197,7 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         paddingHorizontal: spacing.md,
-        paddingTop: 50, // Safe Area
+        paddingTop: 50,
         paddingBottom: spacing.sm,
         backgroundColor: colors.secondary.white,
         borderBottomWidth: 1,
