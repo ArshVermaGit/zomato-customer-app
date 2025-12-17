@@ -1,415 +1,166 @@
-import React, { useEffect, useState } from 'react';
-import { View, StyleSheet, Text, FlatList, TouchableOpacity, RefreshControl, Image, Dimensions } from 'react-native';
-import Animated, {
-    useSharedValue,
-    useAnimatedScrollHandler,
-    useAnimatedStyle,
-    interpolate,
-    Extrapolate
-} from 'react-native-reanimated';
-import { MapPin, ChevronDown, Search, Heart, SlidersHorizontal, ChevronRight } from 'lucide-react-native';
-import { colors, spacing, typography, borderRadius, shadows } from '@zomato/design-tokens';
+import React from 'react';
+import { View, Text, StyleSheet, ScrollView, FlatList, TouchableOpacity, RefreshControl } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { useGetRestaurantsQuery } from '../../services/api/restaurantsApi';
 import { RestaurantCard } from '@zomato/ui';
+import { colors, spacing, typography } from '@zomato/design-tokens';
+import { Search, MapPin } from 'lucide-react-native';
 import { useNavigation } from '@react-navigation/native';
-import { HomeService } from '../../services/home.service';
-import HomeSkeleton from '../../components/Skeleton/HomeSkeleton';
-import { ErrorState } from '@zomato/ui';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { RootStackParamList } from '../../navigation/types';
 
-const { width } = Dimensions.get('window');
+export const HomeScreen = () => {
+    const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
 
-// --- Mock Data for Sub-components ---
-const PROMOS = [
-    { id: '1', image: 'https://b.zmtcdn.com/data/o2_assets/5dbdb7214e93733c7f9263a5043818e61716538186.png', title: '50% OFF' }, // Placeholder
-    { id: '2', image: 'https://b.zmtcdn.com/data/o2_assets/3d90259e8f4989e243447c16223295831610433291.png', title: 'Free Delivery' },
-];
+    // Use real data hook
+    const { data: restaurants, isLoading, isError, refetch } = useGetRestaurantsQuery({});
 
-const CATEGORIES = [
-    { id: '1', name: 'Pizza', image: 'https://b.zmtcdn.com/data/o2_assets/d0bd7c9405ac87f6aa65e31fe55800941632716575.png' },
-    { id: '2', name: 'Burger', image: 'https://b.zmtcdn.com/data/dish_images/ccb7dc91f8f3552700ca20d4f49b91011604859068.png' },
-    { id: '3', name: 'Biryani', image: 'https://b.zmtcdn.com/data/dish_images/d19a31d42d5913ff129cafd7cec772f81639737697.png' },
-    { id: '4', name: 'Thali', image: 'https://b.zmtcdn.com/data/dish_images/197987b7ebcd1ee08f8c25ea4e77e20f1634731334.png' },
-    { id: '5', name: 'Chicken', image: 'https://b.zmtcdn.com/data/dish_images/197987b7ebcd1ee08f8c25ea4e77e20f1634731334.png' } // Placeholder reuse
-];
-
-// --- Sub Components ---
-
-const LocationHeader = () => (
-    <View style={styles.locationHeaderContainer}>
-        <View style={styles.locationTopRow}>
-            <MapPin size={24} color={colors.primary.zomato_red} fill={colors.primary.zomato_red} />
-            <View style={styles.addressContainer}>
-                <Text style={styles.deliverToText}>Deliver to Home</Text>
-                <View style={styles.addressRow}>
-                    <Text style={styles.addressText} numberOfLines={1}>Sector 15, Gurgaon</Text>
-                    <ChevronDown size={16} color={colors.secondary.gray_800} />
-                </View>
-            </View>
-            <TouchableOpacity style={styles.profileButton}>
-                {/* Profile Placeholder or Initial */}
-                <View style={styles.profileCircle}>
-                    <Text style={styles.profileInitial}>A</Text>
-                </View>
-            </TouchableOpacity>
-        </View>
-        <TouchableOpacity style={styles.searchBar}>
-            <Search size={20} color={colors.primary.zomato_red} />
-            <Text style={styles.searchText}>Restaurant name or a dish...</Text>
-            <View style={styles.micBorder} />
-            {/* Mic Icon could go here */}
-        </TouchableOpacity>
-    </View>
-);
-
-const PromoCarousel = () => (
-    <View style={styles.promoContainer}>
-        <FlatList
-            horizontal
-            data={PROMOS}
-            keyExtractor={item => item.id}
-            showsHorizontalScrollIndicator={false}
-            contentContainerStyle={{ paddingHorizontal: spacing.md }}
-            renderItem={({ item }) => (
-                <View style={styles.promoCard}>
-                    <Image source={{ uri: item.image }} style={styles.promoImage} resizeMode="cover" />
-                    {/* In real Zomato, these are banners. I'm using squares/rects */}
-                    <View style={styles.promoOverlay}>
-                        <Text style={styles.promoText}>{item.title}</Text>
-                    </View>
-                </View>
-            )}
-        />
-    </View>
-);
-
-const CategoryRail = () => (
-    <View style={styles.categoryContainer}>
-        <Text style={styles.sectionTitle}>What's on your mind?</Text>
-        <FlatList
-            horizontal
-            data={CATEGORIES}
-            keyExtractor={item => item.id}
-            showsHorizontalScrollIndicator={false}
-            contentContainerStyle={{ paddingHorizontal: spacing.md }}
-            renderItem={({ item }) => (
-                <View style={styles.categoryItem}>
-                    <View style={styles.categoryImageContainer}>
-                        <Image source={{ uri: item.image }} style={styles.categoryImage} />
-                    </View>
-                    <Text style={styles.categoryName} numberOfLines={1}>{item.name}</Text>
-                </View>
-            )}
-        />
-    </View>
-);
-
-const FilterBar = () => (
-    <View style={styles.filterBar}>
-        <TouchableOpacity style={styles.filterButton}>
-            <SlidersHorizontal size={16} color={colors.secondary.gray_800} />
-            <Text style={styles.filterText}>Sort</Text>
-            <ChevronDown size={14} color={colors.secondary.gray_800} />
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.filterButton}>
-            <Text style={styles.filterText}>Near & Fast</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.filterButton}>
-            <Text style={styles.filterText}>Great Offers</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.filterButton}>
-            <Text style={styles.filterText}>Rating 4.0+</Text>
-        </TouchableOpacity>
-    </View>
-);
-
-
-// --- Main Screen ---
-
-const HomeScreen = () => {
-    const navigation = useNavigation<any>();
-    const scrollY = useSharedValue(0);
-    const [restaurants, setRestaurants] = useState<any[]>([]);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(false);
-    const [refreshing, setRefreshing] = useState(false);
-
-    const scrollHandler = useAnimatedScrollHandler({
-        onScroll: (event) => {
-            scrollY.value = event.contentOffset.y;
-        },
-    });
-
-    const headerStyle = useAnimatedStyle(() => {
-        // Simple sticky header effect: 
-        // We actually might want the Search Bar to stick?
-        // Zomato iOS: Address is at top, Scroll up -> Address Fades/Shrinks, Search Bar eventually sticks.
-        // For simplicity: We will let the standard layout handle it, but maybe add a shadow on scroll.
-        return {
-            elevation: scrollY.value > 10 ? 4 : 0,
-            borderBottomWidth: scrollY.value > 10 ? 1 : 0,
-            borderBottomColor: colors.secondary.gray_200,
-        };
-    });
-
-    const fetchData = async () => {
-        try {
-            setError(false);
-            const data = await HomeService.getNearbyRestaurants();
-            setRestaurants(data);
-        } catch (error) {
-            console.error(error);
-            setError(true);
-        } finally {
-            setLoading(false);
-            setRefreshing(false);
-        }
+    const handleRestaurantPress = (id: string) => {
+        navigation.navigate('RestaurantDetail', { restaurantId: id });
     };
-
-    useEffect(() => {
-        fetchData();
-    }, []);
-
-    const onRefresh = () => {
-        setRefreshing(true);
-        fetchData();
-    };
-
-    const renderHeader = () => (
-        <View>
-            <PromoCarousel />
-            <CategoryRail />
-            <View style={styles.sectionStart}>
-                <Text style={styles.listTitle}>All {restaurants.length} restaurants around you</Text>
-            </View>
-            <FilterBar />
-        </View>
-    );
 
     return (
-        <View style={styles.container}>
-            {/* Sticky/Fixed Header Area */}
-            <Animated.View style={[styles.staticHeader, headerStyle]}>
-                <LocationHeader />
-            </Animated.View>
+        <SafeAreaView style={styles.container}>
+            <View style={styles.header}>
+                <View style={styles.locationContainer}>
+                    <MapPin size={20} color={colors.primary.zomato_red} />
+                    <View>
+                        <Text style={styles.locationLabel}>Delivering to</Text>
+                        <Text style={styles.locationText}>Home - Gurgaon</Text>
+                    </View>
+                </View>
+                <TouchableOpacity style={styles.profileButton}>
+                    {/* User Avatar or Initials */}
+                    <View style={styles.avatar} />
+                </TouchableOpacity>
+            </View>
 
-            {loading ? (
-                <HomeSkeleton />
-            ) : error ? (
-                <ErrorState
-                    title="Oops! Something went wrong"
-                    message="We couldn't load the restaurants. Please try again."
-                    onRetry={fetchData}
-                />
-            ) : (
-                <Animated.FlatList
-                    data={restaurants}
-                    keyExtractor={item => item.id}
-                    renderItem={({ item }) => (
-                        <View style={{ paddingHorizontal: spacing.md }}>
-                            <RestaurantCard
-                                restaurant={item}
-                                onPress={() => navigation.navigate('RestaurantDetail', { id: item.id })}
-                            />
-                        </View>
+            <View style={styles.searchBar}>
+                <Search size={20} color="#888" />
+                <Text style={styles.placeholder}>Restaurant name, cuisine, or a dish...</Text>
+            </View>
+
+            <ScrollView
+                contentContainerStyle={styles.content}
+                refreshControl={<RefreshControl refreshing={isLoading} onRefresh={refetch} tintColor={colors.primary.zomato_red} />}
+            >
+                <Text style={styles.sectionTitle}>Recommended for you</Text>
+
+                {isError && (
+                    <View style={styles.errorContainer}>
+                        <Text>Failed to load restaurants.</Text>
+                        <TouchableOpacity onPress={refetch}><Text style={{ color: colors.primary.zomato_red }}>Retry</Text></TouchableOpacity>
+                    </View>
+                )}
+
+                {/* Categories / Filters could go here */}
+
+                <View style={styles.restaurantList}>
+                    {restaurants?.map((restaurant) => (
+                        <RestaurantCard
+                            key={restaurant.id}
+                            id={restaurant.id}
+                            name={restaurant.name}
+                            rating={restaurant.rating}
+                            image={restaurant.image}
+                            deliveryTime={restaurant.deliveryTime}
+                            costForTwo={restaurant.costForTwo}
+                            cuisines={restaurant.cuisines}
+                            promoted={restaurant.isPromoted}
+                            discount={restaurant.discount}
+                            onPress={() => handleRestaurantPress(restaurant.id)}
+                        />
+                    ))}
+                    {!isLoading && restaurants?.length === 0 && (
+                        <Text style={styles.emptyText}>No restaurants found nearby.</Text>
                     )}
-                    ListHeaderComponent={renderHeader}
-                    contentContainerStyle={{ paddingTop: 120, paddingBottom: 100 }} // Top padding for fixed header
-                    onScroll={scrollHandler}
-                    scrollEventThrottle={16}
-                    showsVerticalScrollIndicator={false}
-                    refreshControl={
-                        <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={colors.primary.zomato_red} />
-                    }
-                />
-            )}
+                </View>
 
-            {/* Floating Cart? (If needed later) */}
-        </View>
+                {isLoading && !restaurants && (
+                    <View style={styles.loadingContainer}>
+                        <Text>Loading tasty options...</Text>
+                    </View>
+                )}
+            </ScrollView>
+        </SafeAreaView>
     );
 };
 
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: colors.secondary.white,
+        backgroundColor: '#fff',
     },
-    centerLoading: {
-        flex: 1,
-        justifyContent: 'center',
+    header: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
         alignItems: 'center',
+        padding: 16,
     },
-    staticHeader: {
-        position: 'absolute',
-        top: 0,
-        left: 0,
-        right: 0,
-        backgroundColor: colors.secondary.white,
-        zIndex: 100,
-        paddingTop: 50, // Safe Area approx
-        paddingBottom: spacing.sm,
-    },
-    locationHeaderContainer: {
-        paddingHorizontal: spacing.md,
-    },
-    locationTopRow: {
+    locationContainer: {
         flexDirection: 'row',
         alignItems: 'center',
-        marginBottom: spacing.sm,
+        gap: 8,
     },
-    addressContainer: {
-        flex: 1,
-        marginLeft: spacing.sm,
-    },
-    deliverToText: {
-        ...typography.caption,
-        color: colors.primary.zomato_red,
-        fontWeight: '800',
+    locationLabel: {
+        fontSize: 12,
+        color: '#888',
         textTransform: 'uppercase',
+        fontWeight: 'bold',
     },
-    addressRow: {
-        flexDirection: 'row',
-        alignItems: 'center',
-    },
-    addressText: {
-        ...typography.h3, // Make Address Large like iOS
-        color: colors.secondary.gray_900,
-        marginRight: 4,
+    locationText: {
         fontSize: 16,
+        fontWeight: 'bold',
+        color: '#1C1C1C',
     },
     profileButton: {
-        marginLeft: spacing.md,
+        padding: 4,
     },
-    profileCircle: {
+    avatar: {
         width: 36,
         height: 36,
         borderRadius: 18,
-        backgroundColor: '#F3F4F6',
-        alignItems: 'center',
-        justifyContent: 'center',
-    },
-    profileInitial: {
-        ...typography.h3,
-        color: colors.secondary.gray_800,
-        fontSize: 16,
+        backgroundColor: '#E0E0E0',
     },
     searchBar: {
         flexDirection: 'row',
         alignItems: 'center',
-        backgroundColor: colors.secondary.white,
-        ...shadows.sm, // iOS style shadow
-        borderWidth: 1,
-        borderColor: '#E8E8E8',
-        borderRadius: borderRadius.lg,
-        height: 48,
-        paddingHorizontal: spacing.md,
-        width: '100%',
-        marginTop: 4,
+        backgroundColor: '#F4F4F4',
+        marginHorizontal: 16,
+        padding: 12,
+        borderRadius: 12,
+        gap: 10,
+        marginBottom: 16,
     },
-    searchText: {
-        ...typography.body_medium,
-        color: colors.secondary.gray_500,
-        marginLeft: spacing.sm,
-        flex: 1,
+    placeholder: {
+        color: '#888',
+        fontSize: 15,
     },
-    micBorder: {
-        width: 1,
-        height: 20,
-        backgroundColor: colors.secondary.gray_300,
-        marginHorizontal: spacing.sm
-    },
-    // Sections
-    promoContainer: {
-        marginTop: spacing.md,
-        marginBottom: spacing.lg,
-    },
-    promoCard: {
-        width: width * 0.8,
-        height: 140,
-        marginRight: spacing.md,
-        borderRadius: borderRadius.xl,
-        overflow: 'hidden',
-        backgroundColor: colors.secondary.gray_100,
-        position: 'relative',
-    },
-    promoImage: {
-        width: '100%',
-        height: '100%',
-    },
-    promoOverlay: {
-        position: 'absolute',
-        bottom: 10,
-        left: 10,
-        backgroundColor: 'rgba(255,255,255,0.9)',
-        paddingHorizontal: 8,
-        paddingVertical: 4,
-        borderRadius: 4,
-    },
-    promoText: {
-        ...typography.label_small,
-        fontWeight: 'bold',
-    },
-    categoryContainer: {
-        marginBottom: spacing.xl,
+    content: {
+        paddingBottom: 20,
     },
     sectionTitle: {
-        ...typography.h4,
-        color: colors.secondary.gray_900,
-        marginLeft: spacing.md,
-        marginBottom: spacing.md,
-        letterSpacing: 0.5,
+        fontSize: 20,
+        fontWeight: 'bold',
+        color: '#1C1C1C',
+        marginLeft: 16,
+        marginBottom: 16,
     },
-    categoryItem: {
-        alignItems: 'center',
-        marginRight: spacing.lg,
-        width: 70,
+    restaurantList: {
+        paddingHorizontal: 16,
+        gap: 24,
     },
-    categoryImageContainer: {
-        width: 60,
-        height: 60,
-        borderRadius: 30, // Circle
-        backgroundColor: '#f8f8f8',
-        marginBottom: spacing.xs,
-        overflow: 'hidden',
-    },
-    categoryImage: {
-        width: '100%',
-        height: '100%',
-        resizeMode: 'cover',
-    },
-    categoryName: {
-        ...typography.caption,
-        color: colors.secondary.gray_800,
+    emptyText: {
         textAlign: 'center',
+        color: '#888',
+        marginTop: 20,
     },
-    sectionStart: {
-        paddingHorizontal: spacing.md,
-        marginBottom: spacing.md,
-    },
-    listTitle: {
-        ...typography.h3,
-        color: colors.secondary.gray_900,
-    },
-    filterBar: {
-        flexDirection: 'row',
-        paddingHorizontal: spacing.md,
-        marginBottom: spacing.lg,
-    },
-    filterButton: {
-        flexDirection: 'row',
+    errorContainer: {
         alignItems: 'center',
-        paddingHorizontal: 8,
-        paddingVertical: 6,
-        borderRadius: 8,
-        borderWidth: 1,
-        borderColor: colors.secondary.gray_300,
-        marginRight: spacing.sm,
-        gap: 4,
-        backgroundColor: colors.secondary.white,
+        padding: 20,
     },
-    filterText: {
-        ...typography.caption,
-        fontWeight: '600',
-        color: colors.secondary.gray_800,
+    loadingContainer: {
+        padding: 20,
+        alignItems: 'center'
     }
 });
-
-export default HomeScreen;
