@@ -11,6 +11,8 @@ import TipSelector from '../../components/Cart/TipSelector';
 import { colors, spacing, typography, borderRadius, shadows } from '@zomato/design-tokens';
 import { EmptyState } from '@zomato/ui';
 import { useCreateOrderMutation } from '../../services/api/ordersApi';
+import { useCreatePaymentOrderMutation, useVerifyPaymentMutation } from '../../services/api/paymentsApi';
+import RazorpayCheckout from 'react-native-razorpay';
 
 const CartScreen = () => {
     const navigation = useNavigation<any>();
@@ -36,33 +38,71 @@ const CartScreen = () => {
         dispatch(setTip(amount));
     };
 
-    const handlePlaceOrder = async () => {
-        // Validation (In real app, ensure address/payment is selected)
-        // For MVP, we default or mock these if missing
+    const [initiatePayment] = useCreatePaymentOrderMutation();
+    const [verifyPayment] = useVerifyPaymentMutation();
 
+    const handlePlaceOrder = async () => {
         try {
+            // 1. Create Order in Backend
             const orderPayload = {
                 restaurantId: restaurant?.id,
                 items: items.map(i => ({
                     menuItemId: i.dishId,
                     quantity: i.quantity,
                     price: i.finalPrice,
-                    name: i.name // Helpful for backend if denormalized
+                    name: i.name
                 })),
                 totalAmount: bill.grandTotal,
-                addressId: deliveryAddressId || 'ADDR-DEFAULT', // TODO: Real address selection
-                paymentMethod: paymentMethod || 'COD',
-                instructions: '', // Todo: Add input for this
-                // Tip, discount etc can be added to payload
+                addressId: deliveryAddressId || 'ADDR-DEFAULT',
+                paymentMethod: paymentMethod || 'ONLINE', // Default content to ONLINE for Razorpay logic
+                instructions: '',
             };
 
-            const response = await createOrder(orderPayload).unwrap();
+            const orderResponse = await createOrder(orderPayload).unwrap();
 
-            // Success
-            dispatch(clearCart());
-            navigation.navigate('OrderSuccess', { orderId: response.id });
+            // 2. Initiate Payment
+            const paymentData = await initiatePayment({
+                orderId: orderResponse.id,
+                amount: bill.grandTotal
+            }).unwrap();
+
+            // 3. Open Razorpay
+            const options = {
+                description: `Order #${orderResponse.orderNumber || orderResponse.id}`,
+                image: 'https://b.zmtcdn.com/web_assets/b40b97e677bc7b2ca77c58c61db266fe1603954218.png', // Zomato Logo
+                currency: paymentData.currency,
+                key: paymentData.key,
+                amount: paymentData.amount,
+                name: 'Zomato',
+                order_id: paymentData.razorpayOrderId,
+                prefill: {
+                    email: 'user@example.com', // Get from profile selector if available
+                    contact: '9999999999',
+                    name: 'Arsh Verma'
+                },
+                theme: { color: colors.primary.zomato_red }
+            };
+
+            RazorpayCheckout.open(options).then(async (data: any) => {
+                // 4. Verify Payment
+                await verifyPayment({
+                    orderId: orderResponse.id,
+                    paymentId: data.razorpay_payment_id,
+                    razorpayOrderId: data.razorpay_order_id,
+                    signature: data.razorpay_signature
+                }).unwrap();
+
+                // 5. Success
+                dispatch(clearCart());
+                navigation.navigate('OrderSuccess', { orderId: orderResponse.id });
+            }).catch((error: any) => {
+                console.error('Payment Error', error);
+                Alert.alert('Payment Failed', `Error: ${error.code} | ${error.description}`);
+                // Ideally cancel order or mark as failed
+            });
+
         } catch (error: any) {
-            console.error('Order Placement Failed', error);
+            console.error('Order/Payment Init Failed', error);
             Alert.alert('Order Failed', error.data?.message || 'Something went wrong. Please try again.');
         }
     };
