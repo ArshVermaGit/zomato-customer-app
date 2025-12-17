@@ -1,13 +1,13 @@
 import { api } from './index';
-import { UserProfile, UserState } from '../../types/user.types';
+import { UserProfile } from '../../types/user.types';
 
 export const authApi = api.injectEndpoints({
     endpoints: (builder) => ({
-        login: builder.mutation<{ token: string; user: UserProfile }, { phone: string; otp: string }>({
+        login: builder.mutation<{ access_token: string; user: UserProfile }, { phone: string; otp?: string }>({
             query: (credentials) => ({
                 url: '/auth/login',
                 method: 'POST',
-                data: credentials,
+                data: { ...credentials, isCustomer: true }, // Add flag if backend needs it
             }),
             invalidatesTags: ['User'],
         }),
@@ -18,18 +18,17 @@ export const authApi = api.injectEndpoints({
             }),
             invalidatesTags: ['User', 'Orders'],
         }),
-        // Register/Signup
-        signup: builder.mutation<{ token: string; user: UserProfile }, { phone: string; name: string }>({
+        signup: builder.mutation<{ access_token: string; user: UserProfile }, { phone: string; name: string; email?: string }>({
             query: (data) => ({
                 url: '/auth/register',
                 method: 'POST',
-                data,
+                data: { ...data, role: 'CUSTOMER' },
             }),
             invalidatesTags: ['User'],
         }),
         getProfile: builder.query<UserProfile, void>({
             query: () => ({
-                url: '/user/profile',
+                url: '/users/profile', // Changed from /user/profile based on standard conventions, will verify
                 method: 'GET',
             }),
             providesTags: ['User'],
