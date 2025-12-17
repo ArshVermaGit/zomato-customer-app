@@ -28,7 +28,10 @@ const linking = {
   },
 };
 
+import { useNotifications } from './src/hooks/useNotifications';
+
 function App(): React.JSX.Element {
+  useNotifications();
   return (
     <Provider store={store}>
       <PersistGate loading={null} persistor={persistor}>
