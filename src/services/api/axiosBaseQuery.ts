@@ -1,27 +1,14 @@
 import { BaseQueryFn } from '@reduxjs/toolkit/query';
-import axios, { AxiosRequestConfig, AxiosError } from 'axios';
+import { AxiosRequestConfig, AxiosError } from 'axios';
+import { apiClient } from '@zomato/api-client';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import Toast from 'react-native-toast-message';
 
-// Base URL for API
-import { Platform } from 'react-native';
-
-// Base URL for API
-// 10.0.2.2 is the localhost alias for Android Emulator
-const BASE_URL = Platform.select({
-    android: 'http://10.0.2.2:3000/api',
-    ios: 'http://localhost:3000/api',
-    default: 'http://localhost:3000/api',
-});
-
-const axiosInstance = axios.create({
-    baseURL: BASE_URL,
-    headers: {
-        'Content-Type': 'application/json',
-    },
-});
+// Configure shared client interceptors locally for the app
+// This ensures we use the same instance but with app-specific logic (storage, toasts)
 
 // Request interceptor to add token
-axiosInstance.interceptors.request.use(
+apiClient.interceptors.request.use(
     async (config) => {
         const token = await AsyncStorage.getItem('authToken');
         if (token) {
@@ -32,17 +19,15 @@ axiosInstance.interceptors.request.use(
     (error) => Promise.reject(error)
 );
 
-import Toast from 'react-native-toast-message';
-
-// ... (existing code)
-
 // Response interceptor for global error handling
-axiosInstance.interceptors.response.use(
+apiClient.interceptors.response.use(
     (response) => response,
     async (error) => {
         // Handle 401 Unauthorized
         if (error.response?.status === 401) {
             // Dispatch logout if store was accessible or navigate to login
+            // For now, clear token
+            await AsyncStorage.removeItem('authToken');
         } else if (error.response?.status === 403) {
             Toast.show({
                 type: 'error',
@@ -82,7 +67,7 @@ export const axiosBaseQuery =
     > =>
         async ({ url, method, data, params }) => {
             try {
-                const result = await axiosInstance({
+                const result = await apiClient({
                     url: baseUrl + url,
                     method,
                     data,
@@ -100,4 +85,4 @@ export const axiosBaseQuery =
             }
         };
 
-export default axiosInstance;
+export default apiClient;
