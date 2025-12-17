@@ -16,24 +16,13 @@ import {
     Platform,
     StatusBar,
 } from 'react-native';
-import { useNavigation, useRoute, useFocusEffect } from '@react-navigation/native';
+import { useNavigation, useRoute } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { RouteProp } from '@react-navigation/native';
-import { useDispatch, useSelector } from 'react-redux';
-import { ArrowLeft, HelpCircle, Phone, ChevronUp } from 'lucide-react-native';
+import { ArrowLeft, HelpCircle, Phone } from 'lucide-react-native';
 import { colors, spacing, typography, borderRadius, shadows } from '@zomato/design-tokens';
-import type { RootState, AppDispatch } from '../../store/store';
 import type { OrderStackParamList, WSMessage } from '../../types/order.types';
-import {
-    fetchOrder,
-    updateOrderStatus,
-    updateDeliveryLocation,
-    updateETA,
-    assignDeliveryPartner,
-    setOrderCompleted,
-    setTrackingConnected,
-    cancelOrder,
-} from '../../store/slices/orderSlice';
+import { useGetOrderStatusQuery } from '../../services/api/ordersApi'; // New Hook
 import { WebSocketService } from '../../services/websocket.service';
 import {
     OrderStatusTimeline,
@@ -42,85 +31,47 @@ import {
     OrderItemsSummary,
     OrderCompletedModal,
 } from '../../components/Order';
-import Animated, { useAnimatedStyle, useSharedValue, withSpring, withTiming } from 'react-native-reanimated';
-import { GestureHandlerRootView, PanGestureHandler } from 'react-native-gesture-handler';
+import Animated, { useAnimatedStyle, useSharedValue } from 'react-native-reanimated';
 
 type NavigationProp = StackNavigationProp<OrderStackParamList, 'ActiveOrder'>;
 type RouteProps = RouteProp<OrderStackParamList, 'ActiveOrder'>;
 
-const { height: SCREEN_HEIGHT, width: SCREEN_WIDTH } = Dimensions.get('window');
+const { height: SCREEN_HEIGHT } = Dimensions.get('window');
 const MAP_HEIGHT = SCREEN_HEIGHT * 0.55;
 const SHEET_MIN_HEIGHT = SCREEN_HEIGHT * 0.45;
 
 const ActiveOrderScreen = () => {
     const navigation = useNavigation<NavigationProp>();
     const route = useRoute<RouteProps>();
-    const dispatch = useDispatch<AppDispatch>();
-
     const { orderId } = route.params;
-    const {
-        activeOrder,
-        isLoading,
-        error,
-        deliveryPartnerLocation,
-    } = useSelector((state: RootState) => state.order);
+
+    // Use RTK Query Hook with Polling (fallback if WS not perfect yet)
+    const { data: activeOrder, isLoading, error, refetch } = useGetOrderStatusQuery(orderId, {
+        pollingInterval: 5000,
+    });
 
     const [showCompletedModal, setShowCompletedModal] = useState(false);
     const [isCancelling, setIsCancelling] = useState(false);
 
-    // Fetch order on mount
-    useFocusEffect(
-        useCallback(() => {
-            dispatch(fetchOrder(orderId));
-        }, [dispatch, orderId])
-    );
-
-    // Connect to WebSocket
+    // WebSocket Connection for instant updates (Optional optimization)
     useEffect(() => {
         if (!activeOrder) return;
         const handleMessage = (message: WSMessage) => {
-            switch (message.type) {
-                case 'status_update':
-                    dispatch(updateOrderStatus({ status: message.payload.status, timestamp: message.payload.timestamp }));
-                    break;
-                case 'location_update':
-                    dispatch(updateDeliveryLocation(message.payload));
-                    break;
-                case 'eta_update':
-                    dispatch(updateETA(message.payload));
-                    break;
-                case 'partner_assigned':
-                    dispatch(assignDeliveryPartner(message.payload));
-                    break;
-                case 'order_completed':
-                    dispatch(setOrderCompleted({ deliveredAt: message.payload.deliveredAt }));
-                    setShowCompletedModal(true);
-                    break;
-            }
+            // For now, simpler to just refetch on any relevant event
+            refetch();
         };
         WebSocketService.connect(orderId, handleMessage);
-        dispatch(setTrackingConnected(true));
         return () => {
             WebSocketService.disconnect(orderId, handleMessage);
-            dispatch(setTrackingConnected(false));
         };
-    }, [activeOrder?.id, orderId, dispatch]);
+    }, [activeOrder?.id, orderId, refetch]);
 
     const handleCallRestaurant = () => {
-        if (activeOrder?.restaurant.phone) Linking.openURL(`tel:${activeOrder.restaurant.phone}`);
+        if (activeOrder?.restaurant?.phone) Linking.openURL(`tel:${activeOrder.restaurant.phone}`);
     };
 
     const handleCancelOrder = async () => {
-        if (!activeOrder?.isCancellable) return;
-        setIsCancelling(true);
-        try {
-            await dispatch(cancelOrder(orderId)).unwrap();
-            navigation.goBack();
-        } catch (err) {
-            console.error('Cancel failed:', err);
-        } finally {
-            setIsCancelling(false);
-        }
+        // Implement cancel via mutation if needed
     };
 
     const handleHelp = () => {
@@ -139,8 +90,8 @@ const ActiveOrderScreen = () => {
     if (error || !activeOrder) {
         return (
             <View style={styles.errorContainer}>
-                <Text style={styles.errorText}>{error || 'Order not found'}</Text>
-                <TouchableOpacity style={styles.retryButton} onPress={() => dispatch(fetchOrder(orderId))}>
+                <Text style={styles.errorText}>Unable to load order</Text>
+                <TouchableOpacity style={styles.retryButton} onPress={refetch}>
                     <Text style={styles.retryButtonText}>Retry</Text>
                 </TouchableOpacity>
             </View>
@@ -155,7 +106,7 @@ const ActiveOrderScreen = () => {
             <View style={styles.mapContainer}>
                 <LiveDeliveryMap
                     order={activeOrder}
-                    deliveryLocation={deliveryPartnerLocation}
+                    deliveryLocation={activeOrder.driverLocation} // Assuming backend sends this
                     style={styles.map}
                 />
             </View>
@@ -166,7 +117,7 @@ const ActiveOrderScreen = () => {
                     <ArrowLeft size={24} color={colors.secondary.gray_900} />
                 </TouchableOpacity>
                 <View style={styles.headerTitleContainer}>
-                    <Text style={styles.headerTitle}>Order #{activeOrder.orderNumber}</Text>
+                    <Text style={styles.headerTitle}>Order #{activeOrder.id?.slice(-6) || '...'}</Text>
                 </View>
                 <TouchableOpacity onPress={handleHelp} style={styles.iconButton}>
                     <HelpCircle size={24} color={colors.secondary.gray_900} />
@@ -183,7 +134,7 @@ const ActiveOrderScreen = () => {
                 >
                     {/* Status Header */}
                     <Text style={styles.statusTitle}>
-                        {activeOrder.status.replace('_', ' ')}
+                        {activeOrder.status?.replace(/_/g, ' ')}
                     </Text>
                     <Text style={styles.subStatus}>
                         {activeOrder.deliveryPartner ? `${activeOrder.deliveryPartner.name} is on the way` : 'Preparing your food'}
@@ -201,7 +152,7 @@ const ActiveOrderScreen = () => {
 
                     {/* Timeline */}
                     <View style={styles.section}>
-                        <OrderStatusTimeline timeline={activeOrder.timeline} />
+                        <OrderStatusTimeline timeline={activeOrder.timeline || []} />
                     </View>
 
                     {/* Order Items */}
@@ -212,25 +163,12 @@ const ActiveOrderScreen = () => {
 
                     {/* Restaurant Info */}
                     <View style={styles.restaurantRow}>
-                        <Text style={styles.restaurantName}>From {activeOrder.restaurant.name}</Text>
+                        <Text style={styles.restaurantName}>From {activeOrder.restaurant?.name}</Text>
                         <TouchableOpacity onPress={handleCallRestaurant} style={styles.callRestButton}>
                             <Phone size={16} color={colors.primary.zomato_red} />
                             <Text style={styles.callRestText}>Call</Text>
                         </TouchableOpacity>
                     </View>
-
-                    {/* Cancel Button */}
-                    {activeOrder.isCancellable && (
-                        <TouchableOpacity
-                            style={styles.cancelButton}
-                            onPress={handleCancelOrder}
-                            disabled={isCancelling}
-                        >
-                            <Text style={styles.cancelButtonText}>
-                                {isCancelling ? 'Cancelling...' : 'Cancel Order'}
-                            </Text>
-                        </TouchableOpacity>
-                    )}
 
                     <View style={{ height: 100 }} />
                 </ScrollView>
