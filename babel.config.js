@@ -1,7 +1,18 @@
-module.exports = {
-  presets: ['module:@react-native/babel-preset'],
-  plugins: [
-    '@babel/plugin-transform-export-namespace-from',
-    process.env.NODE_ENV !== 'test' ? 'react-native-reanimated/plugin' : null,
-  ].filter(Boolean),
+module.exports = function (api) {
+  api.cache(true);
+  return {
+    presets: ['babel-preset-expo'],
+    plugins: [
+      '@babel/plugin-transform-export-namespace-from',
+      [
+        'module-resolver',
+        {
+          alias: {
+            'react-native-worklets': 'react-native-worklets-core',
+          },
+        },
+      ],
+      'react-native-reanimated/plugin',
+    ],
+  };
 };
