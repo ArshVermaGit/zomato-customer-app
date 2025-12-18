@@ -1,47 +1,47 @@
-import { api } from './index';
-import { Order, OrderHistoryParams } from '../../types/order.types';
+import { api } from './baseApi';
+import { Order, OrderStatus, ApiResponse, PaginatedResponse } from './api.types';
 
 export const ordersApi = api.injectEndpoints({
     endpoints: (builder) => ({
-        createOrder: builder.mutation<Order, any>({
+        getOrders: builder.query<PaginatedResponse<Order>, { page?: number; status?: OrderStatus }>({
+            query: (params) => ({
+                url: '/orders',
+                method: 'GET',
+                params,
+            }),
+            providesTags: (result) =>
+                result
+                    ? [
+                        ...result.data.map(({ id }) => ({ type: 'Orders' as const, id })),
+                        { type: 'Orders', id: 'LIST' },
+                    ]
+                    : [{ type: 'Orders', id: 'LIST' }],
+        }),
+        getOrderById: builder.query<ApiResponse<Order>, string>({
+            query: (id) => `/orders/${id}`,
+            providesTags: (result, error, id) => [{ type: 'Orders', id }],
+        }),
+        createOrder: builder.mutation<ApiResponse<Order>, Partial<Order>>({
             query: (orderData) => ({
                 url: '/orders',
                 method: 'POST',
                 data: orderData,
             }),
-            invalidatesTags: ['Orders'],
+            invalidatesTags: [{ type: 'Orders', id: 'LIST' }],
         }),
-        getOrderHistory: builder.query<Order[], OrderHistoryParams | void>({
-            query: (params) => ({
-                url: '/orders', // Endpoint for listing orders
-                method: 'GET',
-                params: params || {},
-            }),
-            providesTags: ['Orders'],
-        }),
-        getActiveOrder: builder.query<Order, void>({
-            query: () => ({
-                url: '/orders/active',
-                method: 'GET',
-            }),
-            providesTags: ['Orders'],
-            // Poll every 10 seconds for active order updates
-            pollingInterval: 10000,
-        }),
-        getOrderStatus: builder.query<Order, string>({
+        cancelOrder: builder.mutation<ApiResponse<Order>, string>({
             query: (id) => ({
-                url: `/orders/${id}`,
-                method: 'GET',
+                url: `/orders/${id}/cancel`,
+                method: 'POST',
             }),
-            // Poll every 5 seconds for specific order updates
-            pollingInterval: 5000,
+            invalidatesTags: (result, error, id) => [{ type: 'Orders', id }, { type: 'Orders', id: 'LIST' }],
         }),
     }),
 });
 
 export const {
+    useGetOrdersQuery,
+    useGetOrderByIdQuery,
     useCreateOrderMutation,
-    useGetOrderHistoryQuery,
-    useGetActiveOrderQuery,
-    useGetOrderStatusQuery
+    useCancelOrderMutation,
 } = ordersApi;
