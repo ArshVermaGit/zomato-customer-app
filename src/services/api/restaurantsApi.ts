@@ -1,4 +1,4 @@
-import { api } from './index';
+import { api } from './baseApi';
 
 export interface Restaurant {
     id: string;
