@@ -1,8 +1,8 @@
-error: Clang dependency scanner failure: While building module 'Expo' imported from Expo-613a27f2.input:1:
+error: Clang dependency scanner failure: While building module 'Expo' imported from Expo-d280736e.input:1:
 In file included from <module-includes>:1:
 In file included from /Users/arshverma/GitHub/Zomato/zomato-ecosystem/apps/zomato-customer-app/ios/Pods/Headers/Public/Expo/Expo-umbrella.h:14:
 /Users/arshverma/GitHub/Zomato/zomato-ecosystem/apps/zomato-customer-app/ios/Pods/Headers/Public/Expo/Expo/EXAppDelegateWrapper.h:3:9: fatal error: 'ExpoModulesCore/Platform.h' file not found
-Expo-613a27f2.input:1:1: fatal error: could not build module 'Expo'
+Expo-d280736e.input:1:1: fatal error: could not build module 'Expo'
 
 error: Unable to find module dependency: 'Expo'
 note: a dependency of main module 'Expo'
