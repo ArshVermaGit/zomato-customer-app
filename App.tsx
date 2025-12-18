@@ -7,7 +7,7 @@ import Toast from 'react-native-toast-message';
 
 import RootNavigator from './src/navigation/RootNavigator';
 import { navigationRef } from './src/navigation/RefNavigation';
-import ErrorBoundary from './src/components/Common/ErrorBoundary';
+import { GlobalErrorBoundary } from '@zomato/ui';
 import { NetworkProvider } from './src/context/NetworkContext';
 import OfflineBanner from './src/components/Common/OfflineBanner';
 
@@ -36,13 +36,13 @@ function App(): React.JSX.Element {
     <Provider store={store}>
       <PersistGate loading={null} persistor={persistor}>
         <NetworkProvider>
-          <ErrorBoundary>
+          <GlobalErrorBoundary name="CustomerApp">
             <NavigationContainer ref={navigationRef} linking={linking}>
               <OfflineBanner />
               <RootNavigator />
               <Toast />
             </NavigationContainer>
-          </ErrorBoundary>
+          </GlobalErrorBoundary>
         </NetworkProvider>
       </PersistGate>
     </Provider>
