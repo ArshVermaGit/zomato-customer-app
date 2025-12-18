@@ -1,4 +1,10 @@
 import 'react-native-gesture-handler/jestSetup';
+import { server } from '@zomato/test-utils';
+
+// Start MSW Server
+beforeAll(() => server.listen());
+afterEach(() => server.resetHandlers());
+afterAll(() => server.close());
 
 // Mock Reanimated
 jest.mock('react-native-reanimated', () => {
