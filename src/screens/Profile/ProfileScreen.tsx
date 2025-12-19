@@ -1,8 +1,3 @@
-/**
- * Profile Screen
- * Main profile menu and user info
- */
-
 import React, { useEffect } from 'react';
 import { View, StyleSheet, ScrollView, Alert, Text } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
