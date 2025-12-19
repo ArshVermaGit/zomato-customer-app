@@ -1,13 +1,13 @@
 import React from 'react';
-import { View, Text, StyleSheet, ScrollView, FlatList, TouchableOpacity, RefreshControl } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, RefreshControl } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useGetRestaurantsQuery } from '../../services/api/restaurantsApi';
 import { RestaurantCard } from '@zomato/ui';
-import { colors, spacing, typography } from '@zomato/design-tokens';
+import { colors } from '@zomato/design-tokens';
 import { Search, MapPin } from 'lucide-react-native';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { RootStackParamList } from '../../navigation/types';
+import { RootStackParamList } from '../../navigation/RootNavigator';
 
 export const HomeScreen = () => {
     const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
@@ -16,7 +16,7 @@ export const HomeScreen = () => {
     const { data: restaurants, isLoading, isError, refetch } = useGetRestaurantsQuery({});
 
     const handleRestaurantPress = (id: string) => {
-        navigation.navigate('RestaurantDetail', { restaurantId: id });
+        navigation.navigate('RestaurantDetail', { id });
     };
 
     return (
@@ -59,15 +59,7 @@ export const HomeScreen = () => {
                     {restaurants?.map((restaurant) => (
                         <RestaurantCard
                             key={restaurant.id}
-                            id={restaurant.id}
-                            name={restaurant.name}
-                            rating={restaurant.rating}
-                            image={restaurant.image}
-                            deliveryTime={restaurant.deliveryTime}
-                            costForTwo={restaurant.costForTwo}
-                            cuisines={restaurant.cuisines}
-                            promoted={restaurant.isPromoted}
-                            discount={restaurant.discount}
+                            restaurant={restaurant}
                             onPress={() => handleRestaurantPress(restaurant.id)}
                         />
                     ))}
