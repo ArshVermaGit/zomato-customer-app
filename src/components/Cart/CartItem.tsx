@@ -4,7 +4,7 @@ import { Minus, Plus } from 'lucide-react-native';
 import { useDispatch } from 'react-redux';
 import { updateQuantity, removeFromCart } from '../../store/slices/cartSlice';
 import Animated, { FadeOutLeft, FadeIn } from 'react-native-reanimated';
-import { colors, spacing, typography, borderRadius, shadows } from '@zomato/design-tokens';
+import { colors, spacing, typography, borderRadius } from '@zomato/design-tokens';
 
 interface CartItemProps {
     item: any;

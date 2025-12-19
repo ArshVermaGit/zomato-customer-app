@@ -1,8 +1,8 @@
 import React, { useMemo } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { AlertCircle, WifiOff, RefreshCcw, ShieldAlert } from 'lucide-react-native';
-import { colors, spacing, typography, borderRadius } from '@/theme';
-import { ApiError, ErrorCode } from '@/services/api/api.types';
+import { colors, spacing, typography, borderRadius } from '@zomato/design-tokens';
+import { ApiError, ErrorCode } from '../../services/api/api.types';
 
 interface Props {
     error: ApiError | any;

@@ -4,8 +4,8 @@
  */
 
 import React, { useState } from 'react';
-import { View, StyleSheet, TextInput, TouchableOpacity, ActivityIndicator } from 'react-native';
-import { Send, Image as ImageIcon, Paperclip } from 'lucide-react-native';
+import { View, StyleSheet, TextInput, TouchableOpacity } from 'react-native';
+import { Send, Paperclip } from 'lucide-react-native';
 
 interface ChatInputProps {
     onSend: (text: string) => void;
