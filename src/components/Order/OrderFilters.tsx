@@ -5,7 +5,7 @@
 
 import React from 'react';
 import { View, StyleSheet, Text, TouchableOpacity, ScrollView } from 'react-native';
-import { OrderStatus } from '../../types/order.types';
+import { OrderStatus } from '../../services/api/api.types';
 import { DateRangeFilter } from '../../types/history.types';
 import { Filter, Calendar } from 'lucide-react-native';
 import { colors, spacing, typography, borderRadius } from '@zomato/design-tokens';

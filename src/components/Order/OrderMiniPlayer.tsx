@@ -6,8 +6,8 @@
 import React, { useEffect, useRef } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Animated, Easing } from 'react-native';
 import { ChevronUp, Clock } from 'lucide-react-native';
-import type { Order } from '../../types/order.types';
-import { OrderStatusInfo } from '../../types/order.types';
+import type { Order } from '../../services/api/api.types';
+import { OrderStatus, OrderStatusInfo } from '../../services/api/api.types';
 import { OrderTrackingService } from '../../services/orderTracking.service';
 
 interface OrderMiniPlayerProps {
@@ -41,7 +41,7 @@ const OrderMiniPlayer: React.FC<OrderMiniPlayerProps> = ({ order, onExpand }) =>
         return () => pulse.stop();
     }, [pulseAnim]);
 
-    const statusInfo = OrderStatusInfo[order.status];
+    const statusInfo = (OrderStatusInfo as any)[order.status] || (OrderStatusInfo as any)['PLACED'];
     const etaText = OrderTrackingService.getEstimatedTimeRemaining(order);
 
     return (
@@ -62,7 +62,7 @@ const OrderMiniPlayer: React.FC<OrderMiniPlayerProps> = ({ order, onExpand }) =>
                 {/* Order Info */}
                 <View style={styles.orderInfo}>
                     <Text style={styles.restaurantName} numberOfLines={1}>
-                        {order.restaurant.name}
+                        {order.restaurant?.name || 'Restaurant'}
                     </Text>
                     <Text style={styles.statusText} numberOfLines={1}>
                         {statusInfo.label}
@@ -92,14 +92,14 @@ const OrderMiniPlayer: React.FC<OrderMiniPlayerProps> = ({ order, onExpand }) =>
     );
 };
 
-const getProgressPercentage = (status: string): number => {
+const getProgressPercentage = (status: OrderStatus): number => {
     const progressMap: Record<string, number> = {
-        placed: 15,
-        accepted: 30,
-        preparing: 50,
-        ready: 70,
-        out_for_delivery: 85,
-        delivered: 100,
+        ['PLACED']: 15,
+        ['ACCEPTED']: 30,
+        ['PREPARING']: 50,
+        ['READY']: 70,
+        ['OUT_FOR_DELIVERY']: 85,
+        ['DELIVERED']: 100,
     };
     return progressMap[status] || 0;
 };

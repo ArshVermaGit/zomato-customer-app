@@ -5,7 +5,7 @@
 
 import React from 'react';
 import { View, StyleSheet, Text, Image, TouchableOpacity } from 'react-native';
-import { ChevronRight, RefreshCw, CheckCircle2, XCircle } from 'lucide-react-native';
+import { ChevronRight, RefreshCw } from 'lucide-react-native';
 import { colors, spacing, typography, borderRadius, shadows } from '@zomato/design-tokens';
 import { Order, OrderStatus } from '../../types/order.types';
 
@@ -32,13 +32,13 @@ const OrderHistoryCard: React.FC<OrderHistoryCardProps> = ({ order, onPress, onR
             {/* Header: Restaurant & Status */}
             <View style={styles.header}>
                 <View style={styles.restaurantInfo}>
-                    <Image source={{ uri: order.restaurant.image }} style={styles.image} />
+                    <Image source={{ uri: order.restaurant?.image }} style={styles.image} />
                     <View style={styles.textContainer}>
                         <Text style={styles.restaurantName} numberOfLines={1}>
-                            {order.restaurant.name}
+                            {order.restaurant?.name}
                         </Text>
                         <Text style={styles.location} numberOfLines={1}>
-                            {order.restaurant.address}
+                            {order.restaurant?.address}
                         </Text>
                     </View>
                 </View>

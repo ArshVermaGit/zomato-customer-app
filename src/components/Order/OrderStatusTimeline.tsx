@@ -6,8 +6,8 @@
 import React, { useEffect, useRef } from 'react';
 import { View, Text, StyleSheet, Animated, Easing } from 'react-native';
 import { Check, Circle, Clock } from 'lucide-react-native';
-import type { OrderTimelineEvent } from '../../types/order.types';
-import { OrderStatusInfo } from '../../types/order.types';
+import type { OrderTimelineEvent } from '../../services/api/api.types';
+import { OrderStatusInfo } from '../../services/api/api.types';
 import { OrderTrackingService } from '../../services/orderTracking.service';
 
 interface OrderStatusTimelineProps {
@@ -61,6 +61,7 @@ const TimelineItem: React.FC<TimelineItemProps> = ({ event, isLast }) => {
             pulse.start();
             return () => pulse.stop();
         }
+        return () => { };
     }, [event.isCurrent, pulseAnim]);
 
     const renderIcon = () => {
@@ -120,11 +121,11 @@ const TimelineItem: React.FC<TimelineItemProps> = ({ event, isLast }) => {
                     {statusInfo.label}
                 </Text>
                 <Text style={styles.statusDescription}>{statusInfo.description}</Text>
-                {event.timestamp && (
+                {(event.timestamp || event.time) && (
                     <View style={styles.timeContainer}>
                         <Clock size={12} color="#666" />
                         <Text style={styles.timeText}>
-                            {OrderTrackingService.formatTime(event.timestamp)}
+                            {OrderTrackingService.formatTime(event.timestamp || event.time)}
                         </Text>
                     </View>
                 )}

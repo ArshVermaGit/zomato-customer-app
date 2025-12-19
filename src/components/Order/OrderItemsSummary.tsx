@@ -6,7 +6,7 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, LayoutAnimation, Platform, UIManager } from 'react-native';
 import { ChevronDown, ChevronUp, Circle } from 'lucide-react-native';
-import type { OrderItem } from '../../types/order.types';
+import type { OrderItem } from '../../services/api/api.types';
 
 // Enable LayoutAnimation on Android
 if (Platform.OS === 'android' && UIManager.setLayoutAnimationEnabledExperimental) {
