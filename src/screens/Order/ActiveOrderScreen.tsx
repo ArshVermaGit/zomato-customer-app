@@ -31,7 +31,7 @@ import {
     OrderItemsSummary,
     OrderCompletedModal,
 } from '../../components/Order';
-import Animated, { useAnimatedStyle, useSharedValue } from 'react-native-reanimated';
+import Animated, { useAnimatedStyle } from 'react-native-reanimated';
 
 type NavigationProp = StackNavigationProp<OrderStackParamList, 'ActiveOrder'>;
 type RouteProps = RouteProp<OrderStackParamList, 'ActiveOrder'>;
@@ -51,12 +51,12 @@ const ActiveOrderScreen = () => {
     });
 
     const [showCompletedModal, setShowCompletedModal] = useState(false);
-    const [isCancelling, setIsCancelling] = useState(false);
+
 
     // WebSocket Connection for instant updates (Optional optimization)
     useEffect(() => {
         if (!activeOrder) return;
-        const handleMessage = (message: WSMessage) => {
+        const handleMessage = () => {
             // For now, simpler to just refetch on any relevant event
             refetch();
         };
