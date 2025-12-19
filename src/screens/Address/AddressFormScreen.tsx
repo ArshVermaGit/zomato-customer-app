@@ -36,7 +36,7 @@ const AddressFormScreen = () => {
     const navigation = useNavigation<NavigationProp>();
     const route = useRoute<RouteProps>();
     const dispatch = useDispatch<AppDispatch>();
-    const { isLoading } = useSelector((state: RootState) => state.address);
+    const { } = useSelector((state: RootState) => state.address);
 
     const {
         latitude,

@@ -1,14 +1,8 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Image } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
-import { StackNavigationProp } from '@react-navigation/stack';
-import { AuthStackParamList } from '../../navigation/AuthNavigator';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-type NavigationProp = StackNavigationProp<AuthStackParamList, 'LocationPermission'>;
-
 const LocationPermissionScreen = () => {
-    const navigation = useNavigation<NavigationProp>();
 
     const handleEnableLocation = () => {
         // Logic to request specific location permission

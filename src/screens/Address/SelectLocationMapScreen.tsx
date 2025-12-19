@@ -18,7 +18,7 @@ import { RouteProp } from '@react-navigation/native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import MapView, { PROVIDER_GOOGLE, Region } from 'react-native-maps';
 import { ArrowLeft, Navigation, MapPin } from 'lucide-react-native';
-import type { AddressStackParamList, ReverseGeocodingResult, GeocodingResult } from '../../types/address.types';
+import type { AddressStackParamList, ReverseGeocodingResult } from '../../types/address.types';
 import { AddressService } from '../../services/address.service';
 import { LocationSearchBar } from '../../components/Address';
 import type { LocationSuggestion } from '../../types/address.types';

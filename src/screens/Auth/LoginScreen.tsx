@@ -8,7 +8,6 @@ import {
     TouchableOpacity,
     TextInput,
     Image,
-    Dimensions
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
@@ -21,12 +20,12 @@ import { LinearGradient } from 'expo-linear-gradient';
 
 type NavigationProp = StackNavigationProp<AuthStackParamList, 'Login'>;
 
-const { width } = Dimensions.get('window');
+
 
 export const LoginScreen = () => {
     const navigation = useNavigation<NavigationProp>();
     const [phoneNumber, setPhoneNumber] = useState('');
-    const [countryCode, setCountryCode] = useState('+91');
+    const [countryCode] = useState('+91');
     const [isLoading, setIsLoading] = useState(false);
 
     const handleContinue = async () => {

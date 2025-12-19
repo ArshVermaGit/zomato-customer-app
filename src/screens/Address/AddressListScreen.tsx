@@ -3,7 +3,7 @@
  * Displays list of saved addresses with edit, delete, and select options
  */
 
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useState, useCallback } from 'react';
 import {
     View,
     Text,
