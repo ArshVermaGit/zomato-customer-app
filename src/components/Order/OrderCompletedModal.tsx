@@ -14,7 +14,7 @@ import {
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { Star, FileText, RefreshCw, X } from 'lucide-react-native';
-import type { Order } from '../../types/order.types';
+import type { Order } from '../../services/api/api.types';
 
 interface OrderCompletedModalProps {
     visible: boolean;
@@ -65,7 +65,7 @@ const OrderCompletedModal: React.FC<OrderCompletedModalProps> = ({
                 {/* Thank You */}
                 <Text style={styles.title}>Order Delivered!</Text>
                 <Text style={styles.subtitle}>
-                    Your order from {order.restaurant.name} has been delivered successfully.
+                    Your order from {order.restaurant?.name} has been delivered successfully.
                 </Text>
 
                 {/* Order Summary */}

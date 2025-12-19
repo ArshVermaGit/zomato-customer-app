@@ -3,11 +3,11 @@
  * Real-time map showing delivery partner, restaurant, and customer locations
  */
 
-import React, { useRef, useEffect, useState } from 'react';
-import { View, Text, StyleSheet, Dimensions, StyleProp, ViewStyle } from 'react-native';
+import React, { useRef, useEffect } from 'react';
+import { View, Text, StyleSheet, StyleProp, ViewStyle } from 'react-native';
 import MapView, { Marker, Polyline, PROVIDER_GOOGLE } from 'react-native-maps';
 import { MapPin, Navigation, Home } from 'lucide-react-native';
-import type { Order, DeliveryLocationUpdate } from '../../types/order.types';
+import type { Order, DeliveryLocationUpdate } from '../../services/api/api.types';
 
 interface LiveDeliveryMapProps {
     order: Order;
@@ -15,18 +15,16 @@ interface LiveDeliveryMapProps {
     style?: StyleProp<ViewStyle>;
 }
 
-const { width } = Dimensions.get('window');
-
 const LiveDeliveryMap: React.FC<LiveDeliveryMapProps> = ({ order, deliveryLocation, style }) => {
     const mapRef = useRef<MapView>(null);
-    const [route, setRoute] = useState<{ latitude: number; longitude: number }[]>([]);
 
-    // Calculate map region to fit all markers
+
     const getMapRegion = () => {
-        const locations = [
-            { latitude: order.restaurant.latitude, longitude: order.restaurant.longitude },
-            { latitude: order.customerLatitude, longitude: order.customerLongitude },
-        ];
+        const locations: { latitude: number; longitude: number }[] = [];
+        if (order.restaurant) {
+            locations.push({ latitude: order.restaurant.latitude, longitude: order.restaurant.longitude });
+        }
+        locations.push({ latitude: order.customerLatitude, longitude: order.customerLongitude });
 
         if (deliveryLocation) {
             locations.push({
@@ -58,12 +56,7 @@ const LiveDeliveryMap: React.FC<LiveDeliveryMapProps> = ({ order, deliveryLocati
 
     // Update route when delivery location changes
     useEffect(() => {
-        if (deliveryLocation) {
-            setRoute(prev => [...prev, {
-                latitude: deliveryLocation.latitude,
-                longitude: deliveryLocation.longitude,
-            }]);
-        }
+        // Optional: Implement route logic if needed
     }, [deliveryLocation]);
 
     // Create simple route line
@@ -71,10 +64,12 @@ const LiveDeliveryMap: React.FC<LiveDeliveryMapProps> = ({ order, deliveryLocati
         const points = [];
 
         // Add restaurant
-        points.push({
-            latitude: order.restaurant.latitude,
-            longitude: order.restaurant.longitude,
-        });
+        if (order.restaurant) {
+            points.push({
+                latitude: order.restaurant.latitude,
+                longitude: order.restaurant.longitude,
+            });
+        }
 
         // Add delivery partner current location
         if (deliveryLocation) {
@@ -123,17 +118,19 @@ const LiveDeliveryMap: React.FC<LiveDeliveryMapProps> = ({ order, deliveryLocati
                 />
 
                 {/* Restaurant Marker */}
-                <Marker
-                    coordinate={{
-                        latitude: order.restaurant.latitude,
-                        longitude: order.restaurant.longitude,
-                    }}
-                    title={order.restaurant.name}
-                >
-                    <View style={styles.restaurantMarker}>
-                        <MapPin size={18} color="#fff" />
-                    </View>
-                </Marker>
+                {order.restaurant && (
+                    <Marker
+                        coordinate={{
+                            latitude: order.restaurant.latitude,
+                            longitude: order.restaurant.longitude,
+                        }}
+                        title={order.restaurant.name}
+                    >
+                        <View style={styles.restaurantMarker}>
+                            <MapPin size={18} color="#fff" />
+                        </View>
+                    </Marker>
+                )}
 
                 {/* Customer Location Marker */}
                 <Marker

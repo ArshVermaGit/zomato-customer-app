@@ -1,8 +1,8 @@
 import React from 'react';
-import { StyleSheet, View, Text, TouchableOpacity, Animated as RNAnimated } from 'react-native';
+import { StyleSheet, Text, TouchableOpacity, Animated as RNAnimated } from 'react-native';
 import { Swipeable } from 'react-native-gesture-handler';
 import { Trash2 } from 'lucide-react-native';
-import { colors, spacing, borderRadius, typography } from '@zomato/design-tokens';
+import { colors, typography } from '@zomato/design-tokens';
 import NotificationCard from './NotificationCard';
 import { NotificationItem } from '../../types/notification.types';
 
@@ -18,7 +18,7 @@ const SwipeableNotificationCard: React.FC<SwipeableNotificationCardProps> = ({
     onDelete
 }) => {
     const renderRightActions = (
-        progress: RNAnimated.AnimatedInterpolation<number>,
+        _progress: RNAnimated.AnimatedInterpolation<number>,
         dragX: RNAnimated.AnimatedInterpolation<number>
     ) => {
         const scale = dragX.interpolate({

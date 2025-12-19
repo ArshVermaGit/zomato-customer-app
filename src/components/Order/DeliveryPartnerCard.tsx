@@ -6,7 +6,7 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Image, Linking } from 'react-native';
 import { Phone, MessageCircle, Star, Bike } from 'lucide-react-native';
-import type { DeliveryPartner } from '../../types/order.types';
+import type { DeliveryPartner } from '../../services/api/api.types';
 
 interface DeliveryPartnerCardProps {
     partner: DeliveryPartner;

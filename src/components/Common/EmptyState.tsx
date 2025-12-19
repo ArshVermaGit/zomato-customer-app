@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, Text, StyleSheet, ViewStyle } from 'react-native';
 import { WifiOff, ShoppingBag, Search, Bell, Heart, AlertCircle } from 'lucide-react-native';
-import LottieAnimation from '../Animations/LottieAnimation';
+
 
 export type EmptyStateType = 'offline' | 'cart' | 'search' | 'notifications' | 'favorites' | 'generic';
 
