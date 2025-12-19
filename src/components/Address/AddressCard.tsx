@@ -5,7 +5,7 @@
 
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
-import { Home, Briefcase, MapPin, Edit2, Trash2, Check } from 'lucide-react-native';
+import { Home, Briefcase, MapPin, Trash2, Check } from 'lucide-react-native';
 import type { Address, AddressLabel } from '../../types/address.types';
 import { colors, spacing, typography, borderRadius, shadows } from '@zomato/design-tokens';
 
