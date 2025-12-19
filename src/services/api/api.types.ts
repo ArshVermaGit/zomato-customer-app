@@ -61,6 +61,7 @@ export interface Restaurant {
 
 export interface Order {
     id: string;
+    orderNumber?: string;
     restaurantId: string;
     items: OrderItem[];
     totalAmount: number;
@@ -69,7 +70,8 @@ export interface Order {
 }
 
 export interface OrderItem {
-    id: string;
+    id?: string;
+    menuItemId: string;
     name: string;
     quantity: number;
     price: number;
