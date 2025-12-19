@@ -12,7 +12,6 @@ import {
     ActivityIndicator,
     TextInput,
     RefreshControl,
-    TouchableOpacity,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
@@ -22,7 +21,7 @@ import { Search, ShoppingBag } from 'lucide-react-native';
 
 import { RootState, AppDispatch } from '../../store/store';
 import { fetchHistory, fetchActiveOrders } from '../../store/slices/orderSlice';
-import { Order, OrderStatus } from '../../types/order.types';
+import { OrderStatus } from '../../types/order.types';
 import { DateRangeFilter } from '../../types/history.types';
 import { colors, spacing, typography, borderRadius } from '@zomato/design-tokens';
 import { OrderStackParamList } from '../../types/order.types';
@@ -44,7 +43,7 @@ const OrderHistoryScreen = () => {
         historyPagination
     } = useSelector((state: RootState) => state.order);
 
-    const [activeTab, setActiveTab] = useState<'active' | 'history'>('history');
+    const [activeTab] = useState<'active' | 'history'>('history');
     const [searchQuery, setSearchQuery] = useState('');
     const [statusFilter, setStatusFilter] = useState<OrderStatus | 'all'>('all');
     const [dateRange, setDateRange] = useState<DateRangeFilter>(DateRangeFilter.ALL_TIME);

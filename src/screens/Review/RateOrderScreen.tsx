@@ -20,9 +20,8 @@ import {
 import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { X, Check } from 'lucide-react-native';
-import { colors, spacing, typography, borderRadius, shadows } from '@zomato/design-tokens';
-import LottieView from 'lottie-react-native';
+import { X } from 'lucide-react-native';
+import { colors, spacing, typography, borderRadius } from '@zomato/design-tokens';
 
 import {
     StarRating,
@@ -59,8 +58,6 @@ const RateOrderScreen = () => {
 
     const [partnerRating, setPartnerRating] = useState(0);
     const [isSubmitting, setIsSubmitting] = useState(false);
-    const [showSuccess, setShowSuccess] = useState(false);
-    const [pointsEarned, setPointsEarned] = useState(0);
 
     // Get available tags based on current rating
     const availableTags = ReviewService.getTagsForRating(rating);
@@ -80,6 +77,8 @@ const RateOrderScreen = () => {
     };
 
     const handleSubmit = async () => {
+        if (!order) return;
+
         if (rating === 0) {
             Alert.alert('Rating Required', 'Please rate your order to continue.');
             return;
@@ -89,12 +88,12 @@ const RateOrderScreen = () => {
 
         const request: SubmitReviewRequest = {
             orderId,
-            restaurantId: order?.restaurant.id || 'unknown',
+            restaurantId: order.restaurant?.id || 'unknown',
             rating,
             tags: tags as ReviewTag[],
             comment,
             photos,
-            deliveryPartnerRating: order?.deliveryPartner ? {
+            deliveryPartnerRating: order.deliveryPartner ? {
                 partnerId: order.deliveryPartner.id,
                 rating: partnerRating,
             } : undefined,
@@ -103,7 +102,6 @@ const RateOrderScreen = () => {
         try {
             const response = await ReviewService.submitReview(request);
             if (response.success) {
-                setPointsEarned(response.pointsEarned || 0);
                 // Navigate to Success Screen
                 navigation.navigate('ReviewSuccess', { pointsEarned: response.pointsEarned || 0 });
             }
@@ -149,9 +147,9 @@ const RateOrderScreen = () => {
                 >
                     {/* Restaurant Info */}
                     <View style={styles.restaurantSection}>
-                        <Image source={{ uri: order.restaurant.image }} style={styles.restaurantImage} />
-                        <Text style={styles.restaurantName}>{order.restaurant.name}</Text>
-                        <Text style={styles.locationText}>{order.restaurant.address}</Text>
+                        {order.restaurant?.image && <Image source={{ uri: order.restaurant.image }} style={styles.restaurantImage} />}
+                        <Text style={styles.restaurantName}>{order.restaurant?.name || 'Restaurant'}</Text>
+                        <Text style={styles.locationText}>{order.restaurant?.address || 'Address not available'}</Text>
                     </View>
 
                     <View style={styles.divider} />

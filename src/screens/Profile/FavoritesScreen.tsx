@@ -4,7 +4,7 @@
  */
 
 import React, { useEffect } from 'react';
-import { View, StyleSheet, Text, FlatList, Image, TouchableOpacity, RefreshControl, Animated as RNAnimated } from 'react-native';
+import { View, StyleSheet, Text, FlatList, Image, TouchableOpacity, RefreshControl } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import { useDispatch, useSelector } from 'react-redux';
@@ -34,12 +34,7 @@ const FavoritesScreen = () => {
         navigation.navigate('RestaurantDetail', { restaurantId: id });
     };
 
-    const renderRightActions = (progress: any, dragX: any, id: string) => {
-        const trans = dragX.interpolate({
-            inputRange: [-100, 0],
-            outputRange: [0, 100],
-        });
-
+    const renderRightActions = (_progress: any, _dragX: any, id: string) => {
         return (
             <TouchableOpacity onPress={() => handleRemove(id)} style={styles.deleteAction}>
                 <View style={styles.deleteIconContainer}>
@@ -53,7 +48,7 @@ const FavoritesScreen = () => {
     const renderItem = ({ item, index }: { item: FavoriteRestaurant; index: number }) => (
         <FadeInView delay={index * 100}>
             <Swipeable
-                renderRightActions={(p, d) => renderRightActions(p, d, item.id)}
+                renderRightActions={(_p, _d) => renderRightActions(_p, _d, item.id)}
                 rightThreshold={40}
             >
                 <TouchableOpacity

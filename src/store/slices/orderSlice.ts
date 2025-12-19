@@ -9,11 +9,11 @@ import type {
     OrderState,
     DeliveryLocationUpdate,
     DeliveryPartner,
-    OrderStatus,
 } from '../../types/order.types';
+import { OrderStatus } from '../../types/order.types';
 import { OrderTrackingService } from '../../services/orderTracking.service';
 import { OrderHistoryService } from '../../services/orderHistory.service';
-import { OrderFilter, OrderHistoryResponse } from '../../types/history.types';
+import { OrderFilter } from '../../types/history.types';
 
 const initialState: OrderState = {
     activeOrder: null,
@@ -135,12 +135,14 @@ const orderSlice = createSlice({
 
         setOrderCompleted: (state, action: PayloadAction<{ deliveredAt: string }>) => {
             if (state.activeOrder) {
-                state.activeOrder.status = 'delivered' as OrderStatus;
+                state.activeOrder.status = OrderStatus.DELIVERED;
                 state.activeOrder.deliveredAt = action.payload.deliveredAt;
                 state.activeOrder.isCancellable = false;
 
                 // Move to history
-                state.orderHistory.unshift(state.activeOrder);
+                if (state.activeOrder) {
+                    state.orderHistory.unshift(state.activeOrder);
+                }
             }
         },
 

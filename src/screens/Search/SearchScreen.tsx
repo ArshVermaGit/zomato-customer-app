@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Animated } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { Clock, TrendingUp, Search as SearchIcon, ArrowUpLeft } from 'lucide-react-native';
 import SearchBar from '../../components/Search/SearchBar';

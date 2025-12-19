@@ -3,7 +3,7 @@
  * Toggle preferences for notifications
  */
 
-import React, { useEffect } from 'react';
+import React from 'react';
 import { View, StyleSheet, Text, Switch, TouchableOpacity, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';

@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, FlatList, TouchableOpacity, ScrollView } from 'react-native';
+import { View, Text, StyleSheet, FlatList, TouchableOpacity } from 'react-native';
 import { useRoute, useNavigation } from '@react-navigation/native';
-import { SlidersHorizontal, ChevronDown, Check } from 'lucide-react-native';
+import { SlidersHorizontal, Check } from 'lucide-react-native';
 import SearchBar from '../../components/Search/SearchBar';
 import { RestaurantCard } from '@zomato/ui'; // Use shared component
 import { HomeService } from '../../services/home.service';
 import { EmptyState } from '@zomato/ui';
-import { colors, spacing, typography, borderRadius } from '@zomato/design-tokens';
+import { colors, spacing, typography } from '@zomato/design-tokens';
 import Animated, { FadeInRight } from 'react-native-reanimated';
 
 const FILTERS = [

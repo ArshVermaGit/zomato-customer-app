@@ -3,11 +3,11 @@
  */
 
 import React, { useEffect, useRef, useState } from 'react';
-import { View, StyleSheet, Text, Image, TouchableOpacity, FlatList, KeyboardAvoidingView, Platform, ScrollView } from 'react-native';
+import { View, StyleSheet, Text, TouchableOpacity, FlatList, KeyboardAvoidingView, Platform } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import { useDispatch, useSelector } from 'react-redux';
-import { ChevronLeft, MoreVertical, Phone } from 'lucide-react-native';
+import { ChevronLeft, Phone } from 'lucide-react-native';
 
 import { RootState, AppDispatch } from '../../store/store';
 import { startChatSession, sendMessage, setTypingStatus, receiveMessage, endChat } from '../../store/slices/chatSlice';
@@ -26,7 +26,7 @@ const ChatScreen = () => {
     const navigation = useNavigation();
     const dispatch = useDispatch<AppDispatch>();
     const scrollViewRef = useRef<FlatList>(null);
-    const { messages, session, isTyping, isLoading } = useSelector((state: RootState) => state.chat);
+    const { messages, session, isTyping } = useSelector((state: RootState) => state.chat);
 
     // Local state for initial view
     const [hasSelectedIssue, setHasSelectedIssue] = useState(false);
@@ -53,7 +53,8 @@ const ChatScreen = () => {
                 unsubTyping();
             };
         }
-    }, [session]);
+        return () => { };
+    }, [session, dispatch]);
 
     const handleIssueSelect = async (issue: string) => {
         setHasSelectedIssue(true);

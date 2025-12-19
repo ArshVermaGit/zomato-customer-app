@@ -33,7 +33,7 @@ let MOCK_NOTIFICATIONS: NotificationItem[] = [
 export const NotificationService = {
     requestPermission: async () => 1,
     createChannels: async () => { },
-    displayLocalNotification: async (title: string, body: string, data?: any) => {
+    displayLocalNotification: async (title: string, body: string, _data?: any) => {
         console.log('[Mock Notification]', title, body);
     },
     getNotifications: async (): Promise<NotificationItem[]> => {

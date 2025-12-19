@@ -20,7 +20,7 @@ export const authApi = api.injectEndpoints({
             invalidatesTags: ['User'],
         }),
         getProfile: builder.query<ApiResponse<User>, void>({
-            query: () => '/auth/profile',
+            query: () => ({ url: '/auth/profile', method: 'GET' }),
             providesTags: ['User'],
         }),
         logout: builder.mutation<ApiResponse<void>, void>({

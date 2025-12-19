@@ -3,8 +3,8 @@
  * Redux slice for user authentication and profile state
  */
 
-import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
-import { UserProfile, UserState, FavoriteRestaurant, NotificationSettings } from '../../types/user.types';
+import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
+import { UserProfile, UserState, NotificationSettings } from '../../types/user.types';
 import { UserService } from '../../services/user.service';
 
 const initialState: UserState = {

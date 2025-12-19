@@ -3,10 +3,10 @@
  */
 
 import React from 'react';
-import { View, StyleSheet, Text, TouchableOpacity, Image, Share } from 'react-native';
+import { View, StyleSheet, Text, TouchableOpacity, Share } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
-import { ChevronLeft, Gift, Share2, Copy } from 'lucide-react-native';
+import { ChevronLeft, Gift, Share2 } from 'lucide-react-native';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../store/store';
 

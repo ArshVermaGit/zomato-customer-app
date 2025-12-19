@@ -1,5 +1,5 @@
-import React, { useEffect, useState, useRef } from 'react';
-import { View, StyleSheet, Text, TouchableOpacity, Dimensions, Platform, ScrollView, Animated as RNAnimated, Image } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { View, StyleSheet, Text, TouchableOpacity, Platform, Image } from 'react-native';
 import { useRoute, useNavigation } from '@react-navigation/native';
 import { useDispatch, useSelector } from 'react-redux';
 import { addToCart } from '../../store/slices/cartSlice';
@@ -21,7 +21,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import MenuTab from '../../components/Restaurant/MenuTab';
 import { InfoTab, ReviewsTab } from '../../components/Restaurant/InfoReviewsTabs';
 
-const { width } = Dimensions.get('window');
+
 const HEADER_HEIGHT = 200;
 
 const RestaurantDetailScreen = () => {

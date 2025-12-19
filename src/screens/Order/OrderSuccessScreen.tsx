@@ -1,11 +1,11 @@
 import React, { useEffect, useRef } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Dimensions } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import LottieView from 'lottie-react-native';
 import { colors, spacing, typography, borderRadius } from '@zomato/design-tokens';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-const { width } = Dimensions.get('window');
+
 
 const OrderSuccessScreen = () => {
     const navigation = useNavigation<any>();

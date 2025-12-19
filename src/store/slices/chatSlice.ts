@@ -3,7 +3,7 @@
  */
 
 import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
-import { ChatState, ChatMessage, ChatSession } from '../../types/chat.types';
+import { ChatState, ChatMessage } from '../../types/chat.types';
 import { ChatService } from '../../services/chat.service';
 
 const initialState: ChatState = {

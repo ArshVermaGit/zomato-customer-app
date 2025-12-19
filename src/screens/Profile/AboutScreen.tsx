@@ -4,7 +4,7 @@
  */
 
 import React from 'react';
-import { View, StyleSheet, Text, TouchableOpacity, ScrollView, Image } from 'react-native';
+import { View, StyleSheet, Text, TouchableOpacity, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import { ChevronLeft, ChevronRight } from 'lucide-react-native';

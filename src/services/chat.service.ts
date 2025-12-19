@@ -3,7 +3,7 @@
  * Simulates WebSocket connection for support chat
  */
 
-import { ChatMessage, SenderType } from '../types/chat.types';
+import { ChatMessage } from '../types/chat.types';
 
 type MessageCallback = (message: ChatMessage) => void;
 type TypingCallback = (isTyping: boolean) => void;
@@ -29,7 +29,7 @@ export const ChatService = {
     /**
      * Start a chat session
      */
-    connect: async (issueType: string): Promise<ChatMessage[]> => {
+    connect: async (_issueType: string): Promise<ChatMessage[]> => {
         await mockDelay(1000);
         return INITIAL_MESSAGES;
     },

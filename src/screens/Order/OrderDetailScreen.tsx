@@ -13,20 +13,16 @@ import {
     TouchableOpacity,
     Alert,
 } from 'react-native';
-import { useRoute, useNavigation, RouteProp } from '@react-navigation/native';
+import { useRoute, useNavigation } from '@react-navigation/native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { StackNavigationProp } from '@react-navigation/stack';
 import { ChevronLeft, Share2, HelpCircle } from 'lucide-react-native';
 
 import { Order, OrderStatus } from '../../types/order.types';
 import { OrderHistoryService } from '../../services/orderHistory.service';
 import {
     OrderStatusTimeline,
-    DeliveryPartnerCard,
     InvoiceButton,
-    OrderItemsSummary
 } from '../../components/Order';
-import { RootStackParamList } from '../../navigation/RootNavigator';
 
 const OrderDetailScreen = () => {
     const route = useRoute<any>(); // Bypass type check for demo
@@ -79,7 +75,7 @@ const OrderDetailScreen = () => {
                 </TouchableOpacity>
                 <View>
                     <Text style={styles.headerTitle}>Order Summary</Text>
-                    <Text style={styles.orderNumber}>{order.restaurant.name}</Text>
+                    <Text style={styles.orderNumber}>{order.restaurant?.name || 'Restaurant'}</Text>
                 </View>
                 <TouchableOpacity onPress={handleShare} style={styles.shareButton}>
                     <Share2 size={24} color="#333" />
@@ -106,8 +102,8 @@ const OrderDetailScreen = () => {
                 {/* Items */}
                 <View style={styles.section}>
                     <Text style={styles.sectionHeader}>Items</Text>
-                    {order.items.map((item) => (
-                        <View key={item.id} style={styles.itemRow}>
+                    {order.items.map((item, index) => (
+                        <View key={item.id || index} style={styles.itemRow}>
                             <View style={styles.itemInfo}>
                                 <Image
                                     source={item.isVeg
@@ -161,7 +157,7 @@ const OrderDetailScreen = () => {
                 {/* Tracking/Timeline (Static for history) */}
                 <View style={styles.section}>
                     <Text style={styles.sectionHeader}>Order Timeline</Text>
-                    <OrderStatusTimeline timeline={order.timeline} />
+                    <OrderStatusTimeline timeline={order.timeline || []} />
                 </View>
 
                 {/* Order Details */}

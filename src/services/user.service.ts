@@ -118,11 +118,10 @@ export const UserService = {
     /**
      * Toggle favorite
      */
-    toggleFavorite: async (restaurantId: string): Promise<FavoriteRestaurant[]> => {
+    toggleFavorite: async (_restaurantId: string): Promise<FavoriteRestaurant[]> => {
         await mockDelay(500);
         // This is a simplified toggle logic for the demo service
         // In a real app, we'd add/remove based on ID
-        const exists = MOCK_FAVORITES.some(f => f.id === restaurantId);
         // For demo, we just return the list as is but we would mutate it here
         return [...MOCK_FAVORITES];
     },

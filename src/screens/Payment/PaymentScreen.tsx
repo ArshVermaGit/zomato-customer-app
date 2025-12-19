@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Image } from 'react-native';
-import { useNavigation, useRoute } from '@react-navigation/native';
+import { useNavigation } from '@react-navigation/native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { ArrowLeft, CreditCard, ChevronRight, ShieldCheck, Wallet } from 'lucide-react-native';
+import { ArrowLeft, ShieldCheck } from 'lucide-react-native';
 import { colors, spacing, typography, borderRadius, shadows } from '@zomato/design-tokens';
-import { useSelector, useDispatch } from 'react-redux';
+import { useSelector } from 'react-redux';
 import { RootState } from '../../store/store';
-import createOrder from "../../store/slices/orderSlice";
+
 // Assumption: orderSlice exists or will be updated
 
 const PAYMENT_METHODS = [
@@ -42,7 +42,6 @@ const PAYMENT_METHODS = [
 
 const PaymentScreen = () => {
     const navigation = useNavigation<any>();
-    const dispatch = useDispatch<any>();
     const { bill } = useSelector((state: RootState) => state.cart);
 
     // In a real app, we might pass orderId or intent here

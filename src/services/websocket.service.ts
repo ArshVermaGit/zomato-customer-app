@@ -1,15 +1,7 @@
-/**
- * WebSocket Service
- * Simulated WebSocket for real-time order tracking updates
- */
-
 import {
-    Order,
     OrderStatus,
-    OrderTimelineEvent,
     DeliveryLocationUpdate,
     WSMessage,
-    WSMessageType,
 } from '../types/order.types';
 
 type MessageHandler = (message: WSMessage) => void;
@@ -36,16 +28,6 @@ const deliveryPath = [
 ];
 
 let currentPathIndex = 0;
-
-// Order status progression for simulation
-const statusProgression: OrderStatus[] = [
-    OrderStatus.PLACED,
-    OrderStatus.ACCEPTED,
-    OrderStatus.PREPARING,
-    OrderStatus.READY,
-    OrderStatus.OUT_FOR_DELIVERY,
-    OrderStatus.DELIVERED,
-];
 
 export const WebSocketService = {
     /**
@@ -219,10 +201,10 @@ export const WebSocketService = {
         const partner = {
             id: 'dp_sim',
             name: 'Amit Singh',
-            photo: 'https://randomuser.me/api/portraits/men/45.jpg',
-            phone: '+91 98765 00000',
+            avatarUrl: 'https://randomuser.me/api/portraits/men/45.jpg',
+            phoneNumber: '+91 98765 00000',
             rating: 4.9,
-            vehicleType: 'bike',
+            vehicleType: 'bike' as const,
             vehicleNumber: 'DL 01 XY 5678',
             latitude: deliveryPath[0].lat,
             longitude: deliveryPath[0].lng,

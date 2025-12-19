@@ -18,8 +18,8 @@ export const ordersApi = api.injectEndpoints({
                     : [{ type: 'Orders', id: 'LIST' }],
         }),
         getOrderById: builder.query<ApiResponse<Order>, string>({
-            query: (id) => `/orders/${id}`,
-            providesTags: (result, error, id) => [{ type: 'Orders', id }],
+            query: (id) => ({ url: `/orders/${id}`, method: 'GET' }),
+            providesTags: (_result, _error, id) => [{ type: 'Orders', id }],
         }),
         createOrder: builder.mutation<ApiResponse<Order>, Partial<Order>>({
             query: (orderData) => ({
@@ -34,7 +34,7 @@ export const ordersApi = api.injectEndpoints({
                 url: `/orders/${id}/cancel`,
                 method: 'POST',
             }),
-            invalidatesTags: (result, error, id) => [{ type: 'Orders', id }, { type: 'Orders', id: 'LIST' }],
+            invalidatesTags: (_result, _error, id) => [{ type: 'Orders', id }, { type: 'Orders', id: 'LIST' }],
         }),
     }),
 });

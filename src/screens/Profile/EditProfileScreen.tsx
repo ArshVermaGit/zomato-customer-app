@@ -3,7 +3,7 @@
  * Update user details
  */
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { View, StyleSheet, Text, TextInput, TouchableOpacity, Image, Alert, KeyboardAvoidingView, Platform, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
