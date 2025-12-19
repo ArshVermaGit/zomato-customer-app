@@ -59,16 +59,17 @@ const CartScreen = () => {
             };
 
             const orderResponse = await createOrder(orderPayload).unwrap();
+            const order = (orderResponse as any).data || orderResponse; // Handle both wrapped and unwrapped for safety
 
             // 2. Initiate Payment
             const paymentData = await initiatePayment({
-                orderId: orderResponse.id,
+                orderId: order.id,
                 amount: bill.grandTotal
             }).unwrap();
 
             // 3. Open Razorpay
             const options = {
-                description: `Order #${orderResponse.orderNumber || orderResponse.id}`,
+                description: `Order #${order.orderNumber || order.id}`,
                 image: 'https://b.zmtcdn.com/web_assets/b40b97e677bc7b2ca77c58c61db266fe1603954218.png', // Zomato Logo
                 currency: paymentData.currency,
                 key: paymentData.key,
@@ -86,7 +87,7 @@ const CartScreen = () => {
             RazorpayCheckout.open(options).then(async (data: any) => {
                 // 4. Verify Payment
                 await verifyPayment({
-                    orderId: orderResponse.id,
+                    orderId: order.id,
                     paymentId: data.razorpay_payment_id,
                     razorpayOrderId: data.razorpay_order_id,
                     signature: data.razorpay_signature
@@ -94,7 +95,7 @@ const CartScreen = () => {
 
                 // 5. Success
                 dispatch(clearCart());
-                navigation.navigate('OrderSuccess', { orderId: orderResponse.id });
+                navigation.navigate('OrderSuccess', { orderId: order.id });
             }).catch((error: any) => {
                 console.error('Payment Error', error);
                 Alert.alert('Payment Failed', `Error: ${error.code} | ${error.description}`);
