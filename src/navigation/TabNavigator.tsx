@@ -1,9 +1,9 @@
 import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Home, Search, Receipt, User } from 'lucide-react-native';
-import { colors, typography, spacing, shadows } from '@zomato/design-tokens';
+import { colors, typography, shadows } from '@zomato/design-tokens';
 // Import screens - ensuring paths are correct based on file list
-import HomeScreen from '../screens/Home/HomeScreen';
+import { HomeScreen } from '../screens/Home/HomeScreen';
 import SearchScreen from '../screens/Search/SearchScreen';
 // Assuming OrderHistoryScreen and ProfileScreen are exported from respective folders or files
 // If not found, I will use placeholder components to avoid build errors, but trying real paths first.
@@ -41,7 +41,7 @@ export const TabNavigator = () => {
                     ...typography.caption,
                     fontWeight: '600',
                 },
-                tabBarIcon: ({ focused, color, size }) => {
+                tabBarIcon: ({ color }) => {
                     let Icon;
 
                     switch (route.name) {
