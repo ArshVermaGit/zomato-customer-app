@@ -80,8 +80,6 @@ const RootNavigator = () => {
                 await NotificationService.requestPermission();
 
                 const token = await AsyncStorage.getItem('authToken');
-                // Check if user has passed onboarding
-                const isFirstLaunch = await AsyncStorage.getItem('isFirstLaunch');
 
                 if (token) {
                     setInitialRoute('Main');
@@ -132,7 +130,7 @@ const RootNavigator = () => {
             {/* Order Tracking */}
             <Stack.Group screenOptions={{ presentation: 'card' }}>
                 <Stack.Screen name="ActiveOrder">
-                    {props => <React.Suspense fallback={<View><ActivityIndicator /></View>}><ActiveOrderScreen /></React.Suspense>}
+                    {() => <React.Suspense fallback={<View><ActivityIndicator /></View>}><ActiveOrderScreen /></React.Suspense>}
                 </Stack.Screen>
                 <Stack.Screen
                     name="RateOrder"
@@ -141,16 +139,16 @@ const RootNavigator = () => {
                         headerShown: false
                     }}
                 >
-                    {props => <React.Suspense fallback={<View><ActivityIndicator /></View>}><RateOrderScreen /></React.Suspense>}
+                    {() => <React.Suspense fallback={<View><ActivityIndicator /></View>}><RateOrderScreen /></React.Suspense>}
                 </Stack.Screen>
                 <Stack.Screen name="Payment">
-                    {props => <React.Suspense fallback={<View><ActivityIndicator /></View>}><PaymentScreen /></React.Suspense>}
+                    {() => <React.Suspense fallback={<View><ActivityIndicator /></View>}><PaymentScreen /></React.Suspense>}
                 </Stack.Screen>
                 <Stack.Screen name="OrderSuccess" options={{ headerShown: false, gestureEnabled: false }}>
-                    {props => <React.Suspense fallback={<View><ActivityIndicator /></View>}><OrderSuccessScreen /></React.Suspense>}
+                    {() => <React.Suspense fallback={<View><ActivityIndicator /></View>}><OrderSuccessScreen /></React.Suspense>}
                 </Stack.Screen>
                 <Stack.Screen name="ReviewSuccess" options={{ headerShown: false }}>
-                    {props => <React.Suspense fallback={<View><ActivityIndicator /></View>}><ReviewSuccessScreen /></React.Suspense>}
+                    {() => <React.Suspense fallback={<View><ActivityIndicator /></View>}><ReviewSuccessScreen /></React.Suspense>}
                 </Stack.Screen>
             </Stack.Group>
 
@@ -161,34 +159,34 @@ const RootNavigator = () => {
                    or a wrapper around the whole app. Per screen is safer for now.
                  */}
                 <Stack.Screen name="Profile" options={{ headerShown: false }}>
-                    {props => <React.Suspense fallback={<View><ActivityIndicator /></View>}><ProfileScreen /></React.Suspense>}
+                    {() => <React.Suspense fallback={<View><ActivityIndicator /></View>}><ProfileScreen /></React.Suspense>}
                 </Stack.Screen>
                 <Stack.Screen name="EditProfile" options={{ headerShown: false }}>
-                    {props => <React.Suspense fallback={<View><ActivityIndicator /></View>}><EditProfileScreen /></React.Suspense>}
+                    {() => <React.Suspense fallback={<View><ActivityIndicator /></View>}><EditProfileScreen /></React.Suspense>}
                 </Stack.Screen>
                 <Stack.Screen name="Favorites" options={{ headerShown: false }}>
-                    {props => <React.Suspense fallback={<View><ActivityIndicator /></View>}><FavoritesScreen /></React.Suspense>}
+                    {() => <React.Suspense fallback={<View><ActivityIndicator /></View>}><FavoritesScreen /></React.Suspense>}
                 </Stack.Screen>
                 <Stack.Screen name="Offers" options={{ headerShown: false }}>
-                    {props => <React.Suspense fallback={<View><ActivityIndicator /></View>}><OffersScreen /></React.Suspense>}
+                    {() => <React.Suspense fallback={<View><ActivityIndicator /></View>}><OffersScreen /></React.Suspense>}
                 </Stack.Screen>
                 <Stack.Screen name="ReferEarn" options={{ headerShown: false }}>
-                    {props => <React.Suspense fallback={<View><ActivityIndicator /></View>}><ReferEarnScreen /></React.Suspense>}
+                    {() => <React.Suspense fallback={<View><ActivityIndicator /></View>}><ReferEarnScreen /></React.Suspense>}
                 </Stack.Screen>
                 <Stack.Screen name="NotificationSettings" options={{ headerShown: false }}>
-                    {props => <React.Suspense fallback={<View><ActivityIndicator /></View>}><NotificationSettingsScreen /></React.Suspense>}
+                    {() => <React.Suspense fallback={<View><ActivityIndicator /></View>}><NotificationSettingsScreen /></React.Suspense>}
                 </Stack.Screen>
                 <Stack.Screen name="HelpSupport" options={{ headerShown: false }}>
-                    {props => <React.Suspense fallback={<View><ActivityIndicator /></View>}><HelpSupportScreen /></React.Suspense>}
+                    {() => <React.Suspense fallback={<View><ActivityIndicator /></View>}><HelpSupportScreen /></React.Suspense>}
                 </Stack.Screen>
                 <Stack.Screen name="About" options={{ headerShown: false }}>
-                    {props => <React.Suspense fallback={<View><ActivityIndicator /></View>}><AboutScreen /></React.Suspense>}
+                    {() => <React.Suspense fallback={<View><ActivityIndicator /></View>}><AboutScreen /></React.Suspense>}
                 </Stack.Screen>
                 <Stack.Screen name="Notifications" options={{ headerShown: false }}>
-                    {props => <React.Suspense fallback={<View><ActivityIndicator /></View>}><NotificationsScreen /></React.Suspense>}
+                    {() => <React.Suspense fallback={<View><ActivityIndicator /></View>}><NotificationsScreen /></React.Suspense>}
                 </Stack.Screen>
                 <Stack.Screen name="ChatSupport" options={{ headerShown: false }}>
-                    {props => <React.Suspense fallback={<View><ActivityIndicator /></View>}><ChatScreen /></React.Suspense>}
+                    {() => <React.Suspense fallback={<View><ActivityIndicator /></View>}><ChatScreen /></React.Suspense>}
                 </Stack.Screen>
             </Stack.Group>
         </Stack.Navigator>
