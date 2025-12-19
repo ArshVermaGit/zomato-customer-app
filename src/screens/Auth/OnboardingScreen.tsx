@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, Dimensions, Image } from 'react-native';
+import { View, Text, StyleSheet, Dimensions } from 'react-native';
 import Animated, {
     useSharedValue,
     useAnimatedScrollHandler,
@@ -80,11 +80,6 @@ const OnboardingScreen = () => {
         },
     });
 
-    const handleNext = () => {
-        // Logic to scroll to next slide - ref needed for ScrollView
-        // Simplified: Just update state or let user scroll
-    };
-
     const handleFinish = async () => {
         await AsyncStorage.setItem('isFirstLaunch', 'false');
         navigation.replace('LocationPermission'); // Or Login
@@ -103,7 +98,7 @@ const OnboardingScreen = () => {
                     setCurrentIndex(Math.round(event.nativeEvent.contentOffset.x / SCREEN_WIDTH));
                 }}
             >
-                {slides.map((slide, index) => (
+                {slides.map((slide) => (
                     <View key={slide.id} style={[styles.slide, { backgroundColor: slide.color }]}>
                         {/* Illustration */}
                         <View style={styles.illustrationContainer}>

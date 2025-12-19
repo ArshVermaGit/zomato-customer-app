@@ -3,7 +3,7 @@
  * Main order tracking screen with Live Map background and Bottom Sheet details
  */
 
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
     View,
     Text,
@@ -21,8 +21,8 @@ import { StackNavigationProp } from '@react-navigation/stack';
 import { RouteProp } from '@react-navigation/native';
 import { ArrowLeft, HelpCircle, Phone } from 'lucide-react-native';
 import { colors, spacing, typography, borderRadius, shadows } from '@zomato/design-tokens';
-import type { OrderStackParamList, WSMessage } from '../../types/order.types';
-import { useGetOrderStatusQuery } from '../../services/api/ordersApi'; // New Hook
+import type { OrderStackParamList } from '../../types/order.types';
+import { useGetOrderByIdQuery } from '../../services/api/ordersApi';
 import { WebSocketService } from '../../services/websocket.service';
 import {
     OrderStatusTimeline,
@@ -31,7 +31,7 @@ import {
     OrderItemsSummary,
     OrderCompletedModal,
 } from '../../components/Order';
-import Animated, { useAnimatedStyle } from 'react-native-reanimated';
+
 
 type NavigationProp = StackNavigationProp<OrderStackParamList, 'ActiveOrder'>;
 type RouteProps = RouteProp<OrderStackParamList, 'ActiveOrder'>;
@@ -46,9 +46,10 @@ const ActiveOrderScreen = () => {
     const { orderId } = route.params;
 
     // Use RTK Query Hook with Polling (fallback if WS not perfect yet)
-    const { data: activeOrder, isLoading, error, refetch } = useGetOrderStatusQuery(orderId, {
+    const { data: orderResponse, isLoading, error, refetch } = useGetOrderByIdQuery(orderId, {
         pollingInterval: 5000,
     });
+    const activeOrder = orderResponse?.data;
 
     const [showCompletedModal, setShowCompletedModal] = useState(false);
 
@@ -70,9 +71,7 @@ const ActiveOrderScreen = () => {
         if (activeOrder?.restaurant?.phone) Linking.openURL(`tel:${activeOrder.restaurant.phone}`);
     };
 
-    const handleCancelOrder = async () => {
-        // Implement cancel via mutation if needed
-    };
+
 
     const handleHelp = () => {
         // Navigate to help
@@ -106,7 +105,7 @@ const ActiveOrderScreen = () => {
             <View style={styles.mapContainer}>
                 <LiveDeliveryMap
                     order={activeOrder}
-                    deliveryLocation={activeOrder.driverLocation} // Assuming backend sends this
+                    deliveryLocation={activeOrder.driverLocation || null} // Assuming backend sends this
                     style={styles.map}
                 />
             </View>

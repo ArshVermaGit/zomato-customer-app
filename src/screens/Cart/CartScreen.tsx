@@ -50,7 +50,8 @@ const CartScreen = () => {
                     menuItemId: i.dishId,
                     quantity: i.quantity,
                     price: i.finalPrice,
-                    name: i.name
+                    name: i.name,
+                    isVeg: i.isVeg || false
                 })),
                 totalAmount: bill.grandTotal,
                 addressId: deliveryAddressId || 'ADDR-DEFAULT',

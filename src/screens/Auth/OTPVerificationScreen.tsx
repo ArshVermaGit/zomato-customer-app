@@ -57,7 +57,7 @@ export const OTPVerificationScreen = ({ route }: Props) => {
         }
     };
 
-    const handleVerify = async (code: string) => {
+    const handleVerify = async (_code: string) => {
         Keyboard.dismiss();
         setIsVerifying(true);
 
