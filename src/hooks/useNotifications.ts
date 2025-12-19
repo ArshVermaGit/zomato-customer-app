@@ -1,6 +1,6 @@
 import messaging from '@react-native-firebase/messaging';
 import { useEffect } from 'react';
-import { Platform, Alert } from 'react-native';
+import { Alert } from 'react-native';
 // Note: You need to implement the API call to register token
 // import api from '../services/api'; 
 

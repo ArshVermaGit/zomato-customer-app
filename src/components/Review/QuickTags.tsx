@@ -4,7 +4,7 @@
  */
 
 import React from 'react';
-import { View, StyleSheet, Text, TouchableOpacity, ScrollView } from 'react-native';
+import { View, StyleSheet, Text, TouchableOpacity } from 'react-native';
 
 interface QuickTagsProps {
     tags: string[];

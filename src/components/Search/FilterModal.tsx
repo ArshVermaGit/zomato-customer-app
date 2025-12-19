@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, Modal, TouchableOpacity, ScrollView, TouchableWithoutFeedback } from 'react-native';
-import { X, Check } from 'lucide-react-native';
+import { X } from 'lucide-react-native';
 
 interface FilterModalProps {
     visible: boolean;

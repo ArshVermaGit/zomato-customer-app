@@ -1,13 +1,11 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { View, Text, StyleSheet, Modal, Image, TouchableOpacity, ScrollView, TextInput, Pressable } from 'react-native';
-import { X, Minus, Plus, Star, ChevronDown, Check } from 'lucide-react-native';
+import { X, Minus, Plus, Star, Check } from 'lucide-react-native';
 import Animated, {
     useSharedValue,
     useAnimatedStyle,
     withSpring,
     withSequence,
-    withTiming,
-    interpolateColor
 } from 'react-native-reanimated';
 import { colors, spacing, typography, borderRadius, shadows } from '@zomato/design-tokens';
 

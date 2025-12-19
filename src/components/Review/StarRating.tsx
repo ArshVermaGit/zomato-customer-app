@@ -3,7 +3,7 @@
  * Animated interactive star rating input
  */
 
-import React, { useEffect, useRef } from 'react';
+import React, { useRef } from 'react';
 import { View, StyleSheet, TouchableOpacity, Animated, Text } from 'react-native';
 import { Star } from 'lucide-react-native';
 import ReviewService from '../../services/review.service';
