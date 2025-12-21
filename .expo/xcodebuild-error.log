@@ -1,51 +1,7 @@
-error: Clang dependency scanner failure: While building module 'Expo' imported from Expo-d280736e.input:1:
-In file included from <module-includes>:1:
-In file included from /Users/arshverma/GitHub/Zomato/zomato-ecosystem/apps/zomato-customer-app/ios/Pods/Headers/Public/Expo/Expo-umbrella.h:14:
-/Users/arshverma/GitHub/Zomato/zomato-ecosystem/apps/zomato-customer-app/ios/Pods/Headers/Public/Expo/Expo/EXAppDelegateWrapper.h:3:9: fatal error: 'ExpoModulesCore/Platform.h' file not found
-Expo-d280736e.input:1:1: fatal error: could not build module 'Expo'
-
-error: Unable to find module dependency: 'Expo'
-note: a dependency of main module 'Expo'
-/Users/arshverma/GitHub/Zomato/zomato-ecosystem/node_modules/expo/ios/AppDelegates/AppDelegatesLoaderDelegate.swift:3:8: error: Unable to find module dependency: 'ExpoModulesCore'
-import ExpoModulesCore
-       ^
-/Users/arshverma/GitHub/Zomato/zomato-ecosystem/node_modules/expo/ios/AppDelegates/AppDelegatesLoaderDelegate.swift:3:8: note: a dependency of main module 'Expo'
-import ExpoModulesCore
-       ^
-/Users/arshverma/GitHub/Zomato/zomato-ecosystem/node_modules/expo/ios/Expo.swift:2:19: note: also imported here
-@_exported import ExpoModulesCore
-                  ^
-/Users/arshverma/GitHub/Zomato/zomato-ecosystem/node_modules/expo/ios/AppDelegates/ExpoAppDelegate.swift:3:8: note: also imported here
-import ExpoModulesCore
-       ^
-/Users/arshverma/GitHub/Zomato/zomato-ecosystem/node_modules/expo/ios/Fetch/ExpoFetchModule.swift:3:24: note: also imported here
-@preconcurrency import ExpoModulesCore
-                       ^
-/Users/arshverma/GitHub/Zomato/zomato-ecosystem/node_modules/expo/ios/Fetch/ExpoURLSessionTask.swift:3:8: note: also imported here
-import ExpoModulesCore
-       ^
-/Users/arshverma/GitHub/Zomato/zomato-ecosystem/node_modules/expo/ios/Fetch/FetchExceptions.swift:3:8: note: also imported here
-import ExpoModulesCore
-       ^
-/Users/arshverma/GitHub/Zomato/zomato-ecosystem/node_modules/expo/ios/Fetch/NativeRequest.swift:3:8: note: also imported here
-import ExpoModulesCore
-       ^
-/Users/arshverma/GitHub/Zomato/zomato-ecosystem/node_modules/expo/ios/Fetch/NativeRequestCredentials.swift:3:8: note: also imported here
-import ExpoModulesCore
-       ^
-/Users/arshverma/GitHub/Zomato/zomato-ecosystem/node_modules/expo/ios/Fetch/NativeRequestInit.swift:3:8: note: also imported here
-import ExpoModulesCore
-       ^
-/Users/arshverma/GitHub/Zomato/zomato-ecosystem/node_modules/expo/ios/Fetch/NativeRequestRedirect.swift:1:8: note: also imported here
-import ExpoModulesCore
-       ^
-/Users/arshverma/GitHub/Zomato/zomato-ecosystem/node_modules/expo/ios/Fetch/NativeResponse.swift:3:8: note: also imported here
-import ExpoModulesCore
-       ^
 ** BUILD FAILED **
 
 
 The following build commands failed:
-	SwiftDriver Expo normal arm64 com.apple.xcode.tools.swift.compiler (in target 'Expo' from project 'Pods')
-	Building workspace ZomatoCustomerApp with scheme ZomatoCustomerApp and configuration Debug
+	CompileC /Users/arshverma/Library/Developer/Xcode/DerivedData/Zomato-dhtoulvueohewnhaiukkuzkcihhe/Build/Intermediates.noindex/Pods.build/Debug-iphonesimulator/RNSVG.build/Objects-normal/arm64/RNSVGFilterRegion.o /Users/arshverma/GitHub/Zomato/zomato-ecosystem/node_modules/react-native-svg/apple/Filters/RNSVGFilterRegion.mm normal arm64 objective-c++ com.apple.compilers.llvm.clang.1_0.compiler (in target 'RNSVG' from project 'Pods')
+	Building workspace Zomato with scheme Zomato and configuration Debug
 (2 failures)
